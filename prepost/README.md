@@ -32,13 +32,34 @@ A comprehensive preprocessing and postprocessing suite for the HydroSIS-2D hydro
   - NumPy binary format for coordinates
   - Batch export to multiple formats
 
+### ✅ Postprocessing (Implemented)
+
+- **3D Visualization Engine**
+  - Mesh structure visualization
+  - Terrain elevation rendering
+  - Water surface visualization (terrain + depth)
+  - Velocity field visualization (magnitude and vectors)
+  - Combined multi-field visualizations
+  - High-quality screenshot export
+
+- **Animation Generation**
+  - Time series animations (water evolution, velocity)
+  - Multiple output formats (MP4, GIF, PNG sequence)
+  - Customizable frame rates and colormaps
+  - Time labels and annotations
+
+- **Colormap Utilities**
+  - Scientific colormap recommendations
+  - 40+ available colormaps
+  - Field-type to colormap mapping
+
 ### 🚧 In Development
 
 - Unstructured mesh generation (Gmsh integration)
 - Geometry processing and CAD import
 - Boundary condition interactive setup
-- 3D visualization and rendering
 - Result analysis tools
+- GUI interface
 
 ## Installation
 
@@ -48,8 +69,8 @@ A comprehensive preprocessing and postprocessing suite for the HydroSIS-2D hydro
 # Core dependencies
 pip install numpy scipy
 
-# Optional for visualization
-pip install matplotlib
+# Visualization (required for postprocessing)
+pip install pyvista matplotlib
 
 # Optional for testing
 pip install pytest
@@ -158,6 +179,53 @@ print(f"Estimated time steps: {cost['num_timesteps']:,}")
 print(f"Memory required: {cost['memory_mb']:.2f} MB")
 ```
 
+### Example 5: 3D Visualization
+
+```python
+from preprocessing.mesh_generation import MeshGenerator, DomainParams
+from postprocessing.visualization import VisualizationEngine
+import numpy as np
+
+# Create mesh and data
+domain = DomainParams(xmin=0, xmax=400, ymin=0, ymax=200)
+generator = MeshGenerator(domain)
+mesh = generator.generate_uniform_mesh(80, 40)
+
+# Create terrain and water depth
+terrain = 5.0 + 0.01 * mesh.x  # Sloped terrain
+water_depth = np.maximum(0, 10.0 - 0.02 * mesh.x)  # Dam break initial condition
+
+# Visualize water surface
+engine = VisualizationEngine(offscreen=True)
+engine.visualize_water_surface(mesh, water_depth, terrain, cmap='Blues')
+engine.screenshot('water_surface.png')
+engine.close()
+```
+
+### Example 6: Animation Generation
+
+```python
+from postprocessing.visualization import AnimationGenerator
+import numpy as np
+
+# Create animation generator
+anim_gen = AnimationGenerator(mesh)
+
+# Add time steps (simulate wave propagation)
+for t in np.linspace(0, 10, 30):
+    # Update water depth for each time step
+    wave_front = 100 + 50 * t
+    water_depth_t = np.where(mesh.x < wave_front, 10.0, 0.0)
+    anim_gen.add_timestep(t, {'h': water_depth_t})
+
+# Create animation
+anim_gen.create_water_surface_animation(
+    terrain,
+    'flood_animation.gif',
+    fps=10
+)
+```
+
 ## Running Examples
 
 Complete working examples are provided in the `examples/` directory:
@@ -169,6 +237,9 @@ python example_basic_mesh.py
 
 # Example 2: Adaptive mesh refinement
 python example_adaptive_mesh.py
+
+# Example 3: 3D Visualization and rendering
+python example_visualization.py
 ```
 
 Output files will be created in `examples/output/` directory.
@@ -177,7 +248,12 @@ Output files will be created in `examples/output/` directory.
 
 ```bash
 cd prepost/tests
+
+# Test mesh generation
 pytest test_mesh_generation.py -v
+
+# Test visualization
+pytest test_visualization.py -v
 ```
 
 ## Module Structure
