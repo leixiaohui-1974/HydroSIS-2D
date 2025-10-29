@@ -56,6 +56,10 @@ prepost/examples/*.json
 prepost/examples/*.ini
 prepost/examples/*.npz
 
+# Solver output directories
+prepost/output/
+output/
+
 # Temporary files
 *.tmp
 *.bak
