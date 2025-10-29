@@ -46,7 +46,8 @@ class SolverConfig:
     # Numerical schemes
     flux_scheme: str = 'HLL'            # 'HLL' or 'HLLC'
     time_scheme: str = 'euler'          # 'euler' or 'rk2'
-    spatial_order: int = 1              # 1 or 2 (MUSCL)
+    spatial_order: int = 1              # 1 (first-order) or 2 (MUSCL)
+    muscl_limiter: str = 'minmod'       # 'minmod', 'superbee', 'vanleer', 'mc'
 
     # Output
     output_interval: float = 1.0        # Output interval [s]
