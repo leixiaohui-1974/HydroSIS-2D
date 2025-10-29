@@ -71,6 +71,19 @@ public:
      */
     void print_performance_stats() const;
 
+    /**
+     * @brief Enable VTK output for visualization
+     */
+    void enable_vtk_output(bool enable) { output_vtk_ = enable; }
+
+    /**
+     * @brief Enable validation and error analysis
+     */
+    void enable_validation(bool enable, int test_case_id) {
+        enable_validation_ = enable;
+        test_case_id_ = test_case_id;
+    }
+
 private:
     SimParams params_;
     bool initialized_;
@@ -100,6 +113,12 @@ private:
     // Performance tracking
     float total_compute_time_;
     float total_comm_time_;
+
+    // Output and validation
+    bool output_vtk_;
+    bool enable_validation_;
+    int test_case_id_;
+    real_t initial_mass_;
 
     /**
      * @brief Allocate device and host memory

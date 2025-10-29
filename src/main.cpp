@@ -1,5 +1,7 @@
 #include "hydrosis_solver.h"
 #include "multi_gpu.h"
+#include "test_cases.h"
+#include "validation.h"
 #include <iostream>
 #include <cstring>
 
@@ -12,14 +14,25 @@ void print_usage() {
     std::cout << "  --cfl <value>     CFL number (default: 0.5)\n";
     std::cout << "  --tend <value>    End time in seconds (default: 10.0)\n";
     std::cout << "  --test <id>       Test case ID (default: 0)\n";
-    std::cout << "                    0: 1D dam break\n";
-    std::cout << "                    1: Circular dam break\n";
+    std::cout << "                    0: 1D Dam Break (Ritter)\n";
+    std::cout << "                    1: 2D Circular Dam Break\n";
+    std::cout << "                    2: Partial Dam Break\n";
+    std::cout << "                    3: Thacker's Planar Beach\n";
+    std::cout << "                    4: MacDonald Wetting/Drying\n";
+    std::cout << "                    5: Lake at Rest\n";
+    std::cout << "                    6: Small Perturbation\n";
+    std::cout << "                    7: Flow Over Bump\n";
+    std::cout << "                    8: Oblique Hydraulic Jump\n";
+    std::cout << "  --validate        Enable validation and error analysis\n";
+    std::cout << "  --vtk             Enable VTK output for visualization\n";
     std::cout << "  --help            Show this help message\n";
 }
 
 int main(int argc, char** argv) {
     // Parse command line arguments
     bool use_multi_gpu = false;
+    bool enable_validation = false;
+    bool enable_vtk = false;
     int nx = 512;
     int ny = 512;
     real_t cfl = 0.5;
@@ -39,6 +52,10 @@ int main(int argc, char** argv) {
             t_end = atof(argv[++i]);
         } else if (strcmp(argv[i], "--test") == 0 && i + 1 < argc) {
             test_case = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--validate") == 0) {
+            enable_validation = true;
+        } else if (strcmp(argv[i], "--vtk") == 0) {
+            enable_vtk = true;
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage();
             return 0;
@@ -62,6 +79,14 @@ int main(int argc, char** argv) {
         std::cout << "║         HydroSIS-2D: GPU-Accelerated 2D Hydrodynamic       ║\n";
         std::cout << "║                     Single GPU Mode                         ║\n";
         std::cout << "╚════════════════════════════════════════════════════════════╝\n\n";
+    }
+
+    // Print test case info
+    if (!use_multi_gpu || multi_gpu->is_root()) {
+        std::cout << "Test Case: " << TestCases::get_test_name(test_case) << std::endl;
+        std::cout << "Validation: " << (enable_validation ? "Enabled" : "Disabled") << std::endl;
+        std::cout << "VTK Output: " << (enable_vtk ? "Enabled" : "Disabled") << std::endl;
+        std::cout << std::endl;
     }
 
     // Setup simulation parameters
@@ -107,6 +132,14 @@ int main(int argc, char** argv) {
 
     // Set initial conditions
     solver.set_initial_conditions(test_case);
+
+    // Enable optional features
+    if (enable_vtk) {
+        solver.enable_vtk_output(true);
+    }
+    if (enable_validation) {
+        solver.enable_validation(true, test_case);
+    }
 
     // Run simulation
     auto start = std::chrono::high_resolution_clock::now();

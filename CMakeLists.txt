@@ -49,11 +49,14 @@ include_directories(${CUDA_INCLUDE_DIRS})
 # Source files
 set(CUDA_SOURCES
     src/cuda/cuda_kernels.cu
+    src/cuda/test_cases_kernels.cu
     src/parallel/halo_kernels.cu
 )
 
 set(CXX_SOURCES
     src/solver/hydrosis_solver.cpp
+    src/utils/vtk_writer.cpp
+    src/utils/validation.cpp
     src/main.cpp
 )
 

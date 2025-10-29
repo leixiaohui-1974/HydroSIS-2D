@@ -581,30 +581,60 @@ __global__ void initialize_grid_kernel(
     int idx = j * nx + i;
     real_t x = xmin + i * dx;
     real_t y = ymin + j * dy;
+    real_t xc = xmin + 0.5 * nx * dx;
+    real_t yc = ymin + 0.5 * ny * dy;
 
     CellData& cell = cells[idx];
-    cell.n = 0.03; // Manning's n
+    cell.n = 0.03; // Default Manning's n
 
-    if (test_case == 0) {
-        // Dam break
-        cell.z = 0.0;
-        if (x < 0.5 * (xmin + xmin + nx * dx)) {
-            cell.U.h = 2.0;
-        } else {
-            cell.U.h = 1.0;
+    switch (test_case) {
+        case 0: { // 1D Dam Break
+            cell.z = 0.0;
+            cell.n = 0.0;
+            if (x < xc) {
+                cell.U.h = 10.0;
+            } else {
+                cell.U.h = 1.0;
+            }
+            cell.U.qx = 0.0;
+            cell.U.qy = 0.0;
+            break;
         }
-        cell.U.qx = 0.0;
-        cell.U.qy = 0.0;
-    } else if (test_case == 1) {
-        // Circular dam
-        real_t xc = xmin + 0.5 * nx * dx;
-        real_t yc = ymin + 0.5 * ny * dy;
-        real_t r = sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc));
 
-        cell.z = 0.0;
-        cell.U.h = (r < 0.2 * nx * dx) ? 2.0 : 1.0;
-        cell.U.qx = 0.0;
-        cell.U.qy = 0.0;
+        case 1: { // 2D Circular Dam
+            real_t r = sqrt((x - xc) * (x - xc) + (y - yc) * (y - yc));
+            real_t R_dam = 0.15 * nx * dx;
+            cell.z = 0.0;
+            cell.n = 0.0;
+            if (r < R_dam) {
+                cell.U.h = 10.0;
+            } else {
+                cell.U.h = 1.0;
+            }
+            cell.U.qx = 0.0;
+            cell.U.qy = 0.0;
+            break;
+        }
+
+        case 5: { // Lake at Rest
+            real_t eta = 1.0;
+            cell.z = 0.2 * sin(2.0 * M_PI * x / (nx * dx)) *
+                    cos(2.0 * M_PI * y / (ny * dy));
+            cell.n = 0.03;
+            cell.U.h = eta - cell.z;
+            cell.U.qx = 0.0;
+            cell.U.qy = 0.0;
+            break;
+        }
+
+        default:
+            // Default: simple dam break
+            cell.z = 0.0;
+            cell.n = 0.0;
+            cell.U.h = (x < xc) ? 2.0 : 1.0;
+            cell.U.qx = 0.0;
+            cell.U.qy = 0.0;
+            break;
     }
 
     cell.is_wet = (cell.U.h > Constants::DRY_TOLERANCE);

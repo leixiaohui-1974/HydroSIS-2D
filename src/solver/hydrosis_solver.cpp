@@ -1,4 +1,6 @@
 #include "hydrosis_solver.h"
+#include "vtk_writer.h"
+#include "validation.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -16,7 +18,11 @@ HydroSisSolver::HydroSisSolver()
     , multi_gpu_(nullptr)
     , d_dt_global_(nullptr)
     , total_compute_time_(0.0)
-    , total_comm_time_(0.0) {
+    , total_comm_time_(0.0)
+    , output_vtk_(false)
+    , enable_validation_(false)
+    , test_case_id_(0)
+    , initial_mass_(0.0) {
 }
 
 HydroSisSolver::~HydroSisSolver() {
@@ -128,6 +134,17 @@ void HydroSisSolver::set_initial_conditions(int test_case) {
 
     if (!use_multi_gpu_ || multi_gpu_->is_root()) {
         std::cout << "Initial conditions set (test case " << test_case << ")" << std::endl;
+    }
+
+    // Compute initial mass for validation
+    if (enable_validation_) {
+        copy_to_host();
+        initial_mass_ = Validation::compute_total_mass(
+            h_cells_, params_.nx, params_.ny, params_.dx, params_.dy);
+
+        if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+            std::cout << "Initial mass: " << initial_mass_ << " m^3" << std::endl;
+        }
     }
 }
 
@@ -294,18 +311,66 @@ void HydroSisSolver::run() {
 
         // Output results
         if (current_time_ >= next_output_time) {
-            char filename[256];
-            sprintf(filename, "output_%04d.dat", output_count);
-            save_results(filename, current_time_);
+            // Save results
+            if (output_vtk_) {
+                copy_to_host();
+                std::string vtk_file = VTKWriter::generate_filename("output", output_count, ".vtk");
+                VTKWriter::write_structured_grid(
+                    vtk_file, h_cells_,
+                    params_.nx, params_.ny,
+                    params_.dx, params_.dy,
+                    params_.xmin, params_.ymin,
+                    current_time_, Constants::HALO_WIDTH);
+            } else {
+                char filename[256];
+                sprintf(filename, "output_%04d.dat", output_count);
+                save_results(filename, current_time_);
+            }
+
+            // Validation checks
+            if (enable_validation_) {
+                copy_to_host();
+
+                // Check mass conservation
+                real_t mass_error = Validation::check_mass_conservation(
+                    h_cells_, params_.nx, params_.ny,
+                    params_.dx, params_.dy, initial_mass_);
+
+                // Check physical validity
+                bool is_valid = Validation::check_physical_validity(
+                    h_cells_, params_.nx, params_.ny);
+
+                if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+                    std::cout << "Step " << step_count_
+                              << ", Time = " << current_time_
+                              << " s, dt = " << dt << " s"
+                              << ", Mass error = " << (mass_error * 100.0) << "%"
+                              << ", Valid = " << (is_valid ? "Yes" : "No")
+                              << std::endl;
+                }
+            } else {
+                if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+                    std::cout << "Step " << step_count_
+                              << ", Time = " << current_time_
+                              << " s, dt = " << dt
+                              << " s" << std::endl;
+                }
+            }
+
             next_output_time += params_.output_interval;
             output_count++;
+        }
+    }
 
-            if (!use_multi_gpu_ || multi_gpu_->is_root()) {
-                std::cout << "Step " << step_count_
-                          << ", Time = " << current_time_
-                          << " s, dt = " << dt
-                          << " s" << std::endl;
-            }
+    // Final validation report
+    if (enable_validation_) {
+        copy_to_host();
+
+        if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+            Validation::compare_with_analytical(
+                h_cells_, params_.nx, params_.ny,
+                params_.dx, params_.dy, params_.xmin,
+                current_time_, test_case_id_);
         }
     }
 
