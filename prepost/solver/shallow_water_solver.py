@@ -384,17 +384,31 @@ class ShallowWaterSolver:
                 from .numba_kernels import (
                     compute_hll_flux_x_numba,
                     compute_hll_flux_y_numba,
-                    is_numba_available
+                    compute_hll_flux_x_muscl_numba,
+                    compute_hll_flux_y_muscl_numba,
+                    is_numba_available,
+                    get_limiter_code
                 )
 
                 if is_numba_available():
-                    # Compute fluxes using Numba kernels
-                    flux_h_x, flux_hu_x, flux_hv_x = compute_hll_flux_x_numba(
-                        self.h, self.u, self.v, g, h_dry
-                    )
-                    flux_h_y, flux_hu_y, flux_hv_y = compute_hll_flux_y_numba(
-                        self.h, self.u, self.v, g, h_dry
-                    )
+                    # Choose appropriate Numba kernel based on spatial order
+                    if self.config.spatial_order == 2:
+                        # Second-order: MUSCL + HLL combined Numba kernel
+                        limiter_code = get_limiter_code(self.config.muscl_limiter)
+                        flux_h_x, flux_hu_x, flux_hv_x = compute_hll_flux_x_muscl_numba(
+                            self.h, self.u, self.v, self.dx, limiter_code, g, h_dry
+                        )
+                        flux_h_y, flux_hu_y, flux_hv_y = compute_hll_flux_y_muscl_numba(
+                            self.h, self.u, self.v, self.dy, limiter_code, g, h_dry
+                        )
+                    else:
+                        # First-order: Standard HLL Numba kernel
+                        flux_h_x, flux_hu_x, flux_hv_x = compute_hll_flux_x_numba(
+                            self.h, self.u, self.v, g, h_dry
+                        )
+                        flux_h_y, flux_hu_y, flux_hv_y = compute_hll_flux_y_numba(
+                            self.h, self.u, self.v, g, h_dry
+                        )
 
                     # Store to flux arrays
                     self.flux_x[0, 1:-1, :] = flux_h_x
