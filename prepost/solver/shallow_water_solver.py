@@ -173,7 +173,16 @@ class ShallowWaterSolver:
             Boundary condition manager from preprocessing
         """
         self.bc_manager = bc_manager
-        print("\nBoundary conditions set")
+
+        # Validate that we have all four boundaries
+        is_valid, errors = bc_manager.validate()
+        if not is_valid:
+            print("\nWarning: Boundary conditions validation failed:")
+            for err in errors:
+                print(f"  - {err}")
+        else:
+            print("\nBoundary conditions set:")
+            print(bc_manager.summary())
 
     def set_callback(self, callback: Callable, interval: int = 100):
         """
@@ -344,8 +353,21 @@ class ShallowWaterSolver:
         """
         Apply boundary conditions
 
-        This method enforces boundary conditions on the ghost cells
+        This method enforces boundary conditions on the boundary cells.
+        If bc_manager is set, uses the boundary conditions from preprocessing.
+        Otherwise, applies default wall boundaries.
         """
+        h_dry = self.config.h_dry
+
+        if hasattr(self, 'bc_manager') and self.bc_manager is not None:
+            # Use boundary conditions from preprocessing
+            self._apply_bc_from_manager()
+        else:
+            # Default: all walls
+            self._apply_wall_boundaries()
+
+    def _apply_wall_boundaries(self):
+        """Apply wall boundaries on all four sides (default)"""
         h_dry = self.config.h_dry
 
         # West boundary (i=0)
@@ -372,6 +394,153 @@ class ShallowWaterSolver:
         self.hu[0, :] = self.h[0, :] * self.u[0, :]
         self.hu[-1, :] = self.h[-1, :] * self.u[-1, :]
         self.hv[:, 0] = self.h[:, 0] * self.v[:, 0]
+        self.hv[:, -1] = self.h[:, -1] * self.v[:, -1]
+
+    def _apply_bc_from_manager(self):
+        """Apply boundary conditions from bc_manager"""
+        from preprocessing.boundary_conditions import BCType, BCLocation
+
+        h_dry = self.config.h_dry
+
+        # Get all boundaries from the manager's dictionary
+        boundaries = self.bc_manager.boundaries
+
+        for location, bc in boundaries.items():
+            if bc is None:
+                continue
+
+            if location == BCLocation.WEST:
+                self._apply_bc_west(bc)
+            elif location == BCLocation.EAST:
+                self._apply_bc_east(bc)
+            elif location == BCLocation.SOUTH:
+                self._apply_bc_south(bc)
+            elif location == BCLocation.NORTH:
+                self._apply_bc_north(bc)
+
+    def _apply_bc_west(self, bc):
+        """Apply boundary condition on west boundary (i=0)"""
+        from preprocessing.boundary_conditions import BCType
+
+        h_dry = self.config.h_dry
+
+        if bc.bc_type == BCType.WALL:
+            # Reflective wall
+            self.h[0, :] = np.maximum(self.h[1, :], h_dry)
+            self.u[0, :] = -self.u[1, :]
+            self.v[0, :] = self.v[1, :]
+
+        elif bc.bc_type == BCType.INFLOW:
+            # Fixed inflow
+            self.h[0, :] = bc.depth
+            self.u[0, :] = bc.velocity_x
+            self.v[0, :] = bc.velocity_y
+
+        elif bc.bc_type == BCType.OUTFLOW:
+            # Zero gradient (transmissive)
+            self.h[0, :] = self.h[1, :]
+            self.u[0, :] = self.u[1, :]
+            self.v[0, :] = self.v[1, :]
+
+        elif bc.bc_type == BCType.TIME_SERIES:
+            # Time-varying inflow
+            depth, vel_x, vel_y = bc.interpolate(self.t)
+            self.h[0, :] = depth
+            self.u[0, :] = vel_x
+            self.v[0, :] = vel_y
+
+        # Update conservative variables
+        self.hu[0, :] = self.h[0, :] * self.u[0, :]
+        self.hv[0, :] = self.h[0, :] * self.v[0, :]
+
+    def _apply_bc_east(self, bc):
+        """Apply boundary condition on east boundary (i=nx-1)"""
+        from preprocessing.boundary_conditions import BCType
+
+        h_dry = self.config.h_dry
+
+        if bc.bc_type == BCType.WALL:
+            self.h[-1, :] = np.maximum(self.h[-2, :], h_dry)
+            self.u[-1, :] = -self.u[-2, :]
+            self.v[-1, :] = self.v[-2, :]
+
+        elif bc.bc_type == BCType.INFLOW:
+            self.h[-1, :] = bc.depth
+            self.u[-1, :] = bc.velocity_x
+            self.v[-1, :] = bc.velocity_y
+
+        elif bc.bc_type == BCType.OUTFLOW:
+            self.h[-1, :] = self.h[-2, :]
+            self.u[-1, :] = self.u[-2, :]
+            self.v[-1, :] = self.v[-2, :]
+
+        elif bc.bc_type == BCType.TIME_SERIES:
+            depth, vel_x, vel_y = bc.interpolate(self.t)
+            self.h[-1, :] = depth
+            self.u[-1, :] = vel_x
+            self.v[-1, :] = vel_y
+
+        self.hu[-1, :] = self.h[-1, :] * self.u[-1, :]
+        self.hv[-1, :] = self.h[-1, :] * self.v[-1, :]
+
+    def _apply_bc_south(self, bc):
+        """Apply boundary condition on south boundary (j=0)"""
+        from preprocessing.boundary_conditions import BCType
+
+        h_dry = self.config.h_dry
+
+        if bc.bc_type == BCType.WALL:
+            self.h[:, 0] = np.maximum(self.h[:, 1], h_dry)
+            self.u[:, 0] = self.u[:, 1]
+            self.v[:, 0] = -self.v[:, 1]
+
+        elif bc.bc_type == BCType.INFLOW:
+            self.h[:, 0] = bc.depth
+            self.u[:, 0] = bc.velocity_x
+            self.v[:, 0] = bc.velocity_y
+
+        elif bc.bc_type == BCType.OUTFLOW:
+            self.h[:, 0] = self.h[:, 1]
+            self.u[:, 0] = self.u[:, 1]
+            self.v[:, 0] = self.v[:, 1]
+
+        elif bc.bc_type == BCType.TIME_SERIES:
+            depth, vel_x, vel_y = bc.interpolate(self.t)
+            self.h[:, 0] = depth
+            self.u[:, 0] = vel_x
+            self.v[:, 0] = vel_y
+
+        self.hu[:, 0] = self.h[:, 0] * self.u[:, 0]
+        self.hv[:, 0] = self.h[:, 0] * self.v[:, 0]
+
+    def _apply_bc_north(self, bc):
+        """Apply boundary condition on north boundary (j=ny-1)"""
+        from preprocessing.boundary_conditions import BCType
+
+        h_dry = self.config.h_dry
+
+        if bc.bc_type == BCType.WALL:
+            self.h[:, -1] = np.maximum(self.h[:, -2], h_dry)
+            self.u[:, -1] = self.u[:, -2]
+            self.v[:, -1] = -self.v[:, -2]
+
+        elif bc.bc_type == BCType.INFLOW:
+            self.h[:, -1] = bc.depth
+            self.u[:, -1] = bc.velocity_x
+            self.v[:, -1] = bc.velocity_y
+
+        elif bc.bc_type == BCType.OUTFLOW:
+            self.h[:, -1] = self.h[:, -2]
+            self.u[:, -1] = self.u[:, -2]
+            self.v[:, -1] = self.v[:, -2]
+
+        elif bc.bc_type == BCType.TIME_SERIES:
+            depth, vel_x, vel_y = bc.interpolate(self.t)
+            self.h[:, -1] = depth
+            self.u[:, -1] = vel_x
+            self.v[:, -1] = vel_y
+
+        self.hu[:, -1] = self.h[:, -1] * self.u[:, -1]
         self.hv[:, -1] = self.h[:, -1] * self.v[:, -1]
 
     def compute_source_terms(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
