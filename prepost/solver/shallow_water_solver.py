@@ -363,6 +363,9 @@ class ShallowWaterSolver:
 
         The HLL (Harten-Lax-van Leer) solver approximates the Riemann problem
         solution with two waves: s_L (left) and s_R (right).
+
+        Supports both first-order (piecewise constant) and second-order (MUSCL)
+        spatial reconstruction based on config.spatial_order.
         """
         g = self.config.g
         h_dry = self.config.h_dry
@@ -373,12 +376,22 @@ class ShallowWaterSolver:
 
         # Get left and right states at all interior interfaces
         # Interface i is between cells i-1 (left) and i (right)
-        h_L = self.h[:-1, :]   # shape: (nx-1, ny)
-        h_R = self.h[1:, :]
-        u_L = self.u[:-1, :]
-        u_R = self.u[1:, :]
-        v_L = self.v[:-1, :]
-        v_R = self.v[1:, :]
+
+        if self.config.spatial_order == 2:
+            # Second-order MUSCL reconstruction
+            from .muscl_reconstruction import muscl_reconstruct_x
+
+            h_L, h_R = muscl_reconstruct_x(self.h, self.dx, self.config.muscl_limiter)
+            u_L, u_R = muscl_reconstruct_x(self.u, self.dx, self.config.muscl_limiter)
+            v_L, v_R = muscl_reconstruct_x(self.v, self.dx, self.config.muscl_limiter)
+        else:
+            # First-order: piecewise constant (cell values)
+            h_L = self.h[:-1, :]   # shape: (nx-1, ny)
+            h_R = self.h[1:, :]
+            u_L = self.u[:-1, :]
+            u_R = self.u[1:, :]
+            v_L = self.v[:-1, :]
+            v_R = self.v[1:, :]
 
         # Wet/dry mask - compute flux only where at least one side is wet
         wet_mask_x = (h_L >= h_dry) | (h_R >= h_dry)
@@ -443,12 +456,22 @@ class ShallowWaterSolver:
 
         # Get bottom and top states at all interior interfaces
         # Interface j is between cells j-1 (bottom) and j (top)
-        h_B = self.h[:, :-1]   # shape: (nx, ny-1)
-        h_T = self.h[:, 1:]
-        u_B = self.u[:, :-1]
-        u_T = self.u[:, 1:]
-        v_B = self.v[:, :-1]
-        v_T = self.v[:, 1:]
+
+        if self.config.spatial_order == 2:
+            # Second-order MUSCL reconstruction
+            from .muscl_reconstruction import muscl_reconstruct_y
+
+            h_B, h_T = muscl_reconstruct_y(self.h, self.dy, self.config.muscl_limiter)
+            u_B, u_T = muscl_reconstruct_y(self.u, self.dy, self.config.muscl_limiter)
+            v_B, v_T = muscl_reconstruct_y(self.v, self.dy, self.config.muscl_limiter)
+        else:
+            # First-order: piecewise constant (cell values)
+            h_B = self.h[:, :-1]   # shape: (nx, ny-1)
+            h_T = self.h[:, 1:]
+            u_B = self.u[:, :-1]
+            u_T = self.u[:, 1:]
+            v_B = self.v[:, :-1]
+            v_T = self.v[:, 1:]
 
         # Wet/dry mask
         wet_mask_y = (h_B >= h_dry) | (h_T >= h_dry)
