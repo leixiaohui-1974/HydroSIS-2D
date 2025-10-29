@@ -2,17 +2,19 @@
 #include "multi_gpu.h"
 #include "test_cases.h"
 #include "validation.h"
+#include "config_reader.h"
 #include <iostream>
 #include <cstring>
 
 void print_usage() {
     std::cout << "Usage: hydrosis [options]\n";
     std::cout << "Options:\n";
+    std::cout << "  --config <file>   Load configuration from file\n";
     std::cout << "  --multi-gpu       Enable multi-GPU mode (requires MPI)\n";
-    std::cout << "  --nx <value>      Grid size in x-direction (default: 512)\n";
-    std::cout << "  --ny <value>      Grid size in y-direction (default: 512)\n";
-    std::cout << "  --cfl <value>     CFL number (default: 0.5)\n";
-    std::cout << "  --tend <value>    End time in seconds (default: 10.0)\n";
+    std::cout << "  --nx <value>      Grid size in x-direction (overrides config)\n";
+    std::cout << "  --ny <value>      Grid size in y-direction (overrides config)\n";
+    std::cout << "  --cfl <value>     CFL number (overrides config)\n";
+    std::cout << "  --tend <value>    End time in seconds (overrides config)\n";
     std::cout << "  --test <id>       Test case ID (default: 0)\n";
     std::cout << "                    0: 1D Dam Break (Ritter)\n";
     std::cout << "                    1: 2D Circular Dam Break\n";
@@ -26,30 +28,37 @@ void print_usage() {
     std::cout << "  --validate        Enable validation and error analysis\n";
     std::cout << "  --vtk             Enable VTK output for visualization\n";
     std::cout << "  --help            Show this help message\n";
+    std::cout << "\nNote: Command line options override config file values.\n";
+    std::cout << "Example: ./hydrosis --config examples/config_dam_break.ini\n";
 }
 
 int main(int argc, char** argv) {
-    // Parse command line arguments
+    // Parse command line arguments (first pass - look for config file)
+    std::string config_file;
     bool use_multi_gpu = false;
     bool enable_validation = false;
     bool enable_vtk = false;
-    int nx = 512;
-    int ny = 512;
-    real_t cfl = 0.5;
-    real_t t_end = 10.0;
     int test_case = 0;
 
+    // Command line overrides
+    int nx_override = -1;
+    int ny_override = -1;
+    real_t cfl_override = -1.0;
+    real_t t_end_override = -1.0;
+
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--multi-gpu") == 0) {
+        if (strcmp(argv[i], "--config") == 0 && i + 1 < argc) {
+            config_file = argv[++i];
+        } else if (strcmp(argv[i], "--multi-gpu") == 0) {
             use_multi_gpu = true;
         } else if (strcmp(argv[i], "--nx") == 0 && i + 1 < argc) {
-            nx = atoi(argv[++i]);
+            nx_override = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--ny") == 0 && i + 1 < argc) {
-            ny = atoi(argv[++i]);
+            ny_override = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--cfl") == 0 && i + 1 < argc) {
-            cfl = atof(argv[++i]);
+            cfl_override = atof(argv[++i]);
         } else if (strcmp(argv[i], "--tend") == 0 && i + 1 < argc) {
-            t_end = atof(argv[++i]);
+            t_end_override = atof(argv[++i]);
         } else if (strcmp(argv[i], "--test") == 0 && i + 1 < argc) {
             test_case = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--validate") == 0) {
@@ -81,50 +90,93 @@ int main(int argc, char** argv) {
         std::cout << "╚════════════════════════════════════════════════════════════╝\n\n";
     }
 
-    // Print test case info
-    if (!use_multi_gpu || multi_gpu->is_root()) {
-        std::cout << "Test Case: " << TestCases::get_test_name(test_case) << std::endl;
-        std::cout << "Validation: " << (enable_validation ? "Enabled" : "Disabled") << std::endl;
-        std::cout << "VTK Output: " << (enable_vtk ? "Enabled" : "Disabled") << std::endl;
-        std::cout << std::endl;
-    }
-
     // Setup simulation parameters
     SimParams params;
 
-    // Grid parameters
-    params.nx = nx;
-    params.ny = ny;
-    params.dx = 1.0;
-    params.dy = 1.0;
-    params.xmin = 0.0;
-    params.ymin = 0.0;
-    params.xmax = params.xmin + params.nx * params.dx;
-    params.ymax = params.ymin + params.ny * params.dy;
+    // Load from config file if provided
+    if (!config_file.empty()) {
+        if (!use_multi_gpu || multi_gpu->is_root()) {
+            std::cout << "Loading configuration from: " << config_file << std::endl;
+        }
 
-    // Physical parameters
-    params.g = Constants::GRAVITY;
-    params.cfl = cfl;
-    params.h_dry = Constants::DRY_TOLERANCE;
-    params.friction_type = 0.0; // Manning
+        ConfigReader config;
+        if (!config.load(config_file)) {
+            std::cerr << "Error: Failed to load configuration file" << std::endl;
+            if (multi_gpu) {
+                multi_gpu->finalize();
+                delete multi_gpu;
+            }
+            return 1;
+        }
 
-    // Time parameters
-    params.t_start = 0.0;
-    params.t_end = t_end;
-    params.dt_max = 0.1;
-    params.output_interval = 1.0;
+        // Parse parameters from config
+        config.parse_params(params);
 
-    // Boundary conditions (all walls)
-    params.bc_type[0] = 0; // left: wall
-    params.bc_type[1] = 0; // right: wall
-    params.bc_type[2] = 0; // bottom: wall
-    params.bc_type[3] = 0; // top: wall
+        if (!use_multi_gpu || multi_gpu->is_root()) {
+            std::cout << "Configuration loaded successfully.\n" << std::endl;
+        }
+    } else {
+        // Use default parameters if no config file
+        params.nx = 512;
+        params.ny = 512;
+        params.dx = 1.0;
+        params.dy = 1.0;
+        params.xmin = 0.0;
+        params.ymin = 0.0;
+        params.xmax = params.xmin + params.nx * params.dx;
+        params.ymax = params.ymin + params.ny * params.dy;
 
-    // Solver options
-    params.use_lts = false;
-    params.riemann_solver = 1; // HLLC
-    params.slope_limiter = 0;  // minmod
-    params.order = 2;          // second-order MUSCL
+        params.g = Constants::GRAVITY;
+        params.cfl = 0.5;
+        params.h_dry = Constants::DRY_TOLERANCE;
+        params.friction_type = 0.0;
+
+        params.t_start = 0.0;
+        params.t_end = 10.0;
+        params.dt_max = 0.1;
+        params.output_interval = 1.0;
+
+        params.bc_type[0] = 0;
+        params.bc_type[1] = 0;
+        params.bc_type[2] = 0;
+        params.bc_type[3] = 0;
+
+        params.use_lts = false;
+        params.riemann_solver = 1;
+        params.slope_limiter = 0;
+        params.order = 2;
+    }
+
+    // Apply command line overrides
+    if (nx_override > 0) {
+        params.nx = nx_override;
+        params.xmax = params.xmin + params.nx * params.dx;
+    }
+    if (ny_override > 0) {
+        params.ny = ny_override;
+        params.ymax = params.ymin + params.ny * params.dy;
+    }
+    if (cfl_override > 0.0) {
+        params.cfl = cfl_override;
+    }
+    if (t_end_override > 0.0) {
+        params.t_end = t_end_override;
+    }
+
+    // Print configuration summary
+    if (!use_multi_gpu || multi_gpu->is_root()) {
+        std::cout << "=== Simulation Configuration ===" << std::endl;
+        std::cout << "Grid:        " << params.nx << " x " << params.ny << std::endl;
+        std::cout << "Domain:      [" << params.xmin << ", " << params.xmax << "] x "
+                  << "[" << params.ymin << ", " << params.ymax << "]" << std::endl;
+        std::cout << "Grid spacing: dx=" << params.dx << " m, dy=" << params.dy << " m" << std::endl;
+        std::cout << "CFL:         " << params.cfl << std::endl;
+        std::cout << "Time:        " << params.t_start << " to " << params.t_end << " s" << std::endl;
+        std::cout << "Test Case:   " << TestCases::get_test_name(test_case) << std::endl;
+        std::cout << "Validation:  " << (enable_validation ? "Enabled" : "Disabled") << std::endl;
+        std::cout << "VTK Output:  " << (enable_vtk ? "Enabled" : "Disabled") << std::endl;
+        std::cout << "================================\n" << std::endl;
+    }
 
     // Create and initialize solver
     HydroSisSolver solver;
@@ -157,12 +209,12 @@ int main(int argc, char** argv) {
         std::cout << "╠════════════════════════════════════════════════════════════╣\n";
 
         printf("║ Total wall time:          %8.2f seconds                 ║\n", total_time);
-        printf("║ Grid size:                %4d x %4d                    ║\n", nx, ny);
-        printf("║ Total cells:              %10d                      ║\n", nx * ny);
+        printf("║ Grid size:                %4d x %4d                    ║\n", params.nx, params.ny);
+        printf("║ Total cells:              %10d                      ║\n", params.nx * params.ny);
         printf("║ Time steps:               %10d                      ║\n", solver.get_step_count());
         printf("║ Final time:               %8.2f s                      ║\n", solver.get_time());
 
-        float cell_updates = (float)nx * ny * solver.get_step_count();
+        float cell_updates = (float)params.nx * params.ny * solver.get_step_count();
         float gigacells_per_sec = cell_updates / total_time / 1e9;
         printf("║ Performance:              %8.3f gigacells/s            ║\n", gigacells_per_sec);
 
