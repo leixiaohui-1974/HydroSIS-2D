@@ -59,6 +59,7 @@ set(CXX_SOURCES
     src/utils/validation.cpp
     src/utils/config_reader.cpp
     src/utils/performance_monitor.cpp
+    src/utils/terrain_reader.cpp
     src/main.cpp
 )
 

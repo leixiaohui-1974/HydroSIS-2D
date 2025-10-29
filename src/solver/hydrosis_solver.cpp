@@ -1,6 +1,7 @@
 #include "hydrosis_solver.h"
 #include "vtk_writer.h"
 #include "validation.h"
+#include "terrain_reader.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -151,11 +152,75 @@ void HydroSisSolver::set_initial_conditions(int test_case) {
 void HydroSisSolver::set_bed_elevation(const std::string& filename) {
     if (filename.empty()) {
         // Flat bed - already initialized to 0
+        if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+            std::cout << "Using flat bed (z = 0)" << std::endl;
+        }
         return;
     }
 
-    // TODO: Load from file
-    std::cout << "Loading bed elevation from: " << filename << std::endl;
+    if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+        std::cout << "Loading bed elevation from: " << filename << std::endl;
+    }
+
+    // Allocate temporary array for elevation data
+    int n_cells = params_.nx * params_.ny;
+    real_t* z_elevation = new real_t[n_cells];
+
+    // Initialize to zero
+    for (int i = 0; i < n_cells; i++) {
+        z_elevation[i] = 0.0;
+    }
+
+    // Check file extension
+    std::string ext = filename.substr(filename.find_last_of(".") + 1);
+
+    if (ext == "asc" || ext == "ASC") {
+        // Load ASCII Grid format
+        TerrainReader::TerrainData terrain;
+        if (TerrainReader::load_ascii_grid(filename, terrain)) {
+            TerrainReader::print_statistics(terrain);
+
+            // Interpolate to simulation grid
+            TerrainReader::interpolate_to_grid(
+                terrain, z_elevation,
+                params_.nx, params_.ny,
+                params_.xmin, params_.ymin,
+                params_.dx, params_.dy
+            );
+        } else {
+            std::cerr << "Warning: Failed to load terrain file, using flat bed" << std::endl;
+        }
+    } else if (ext == "bin" || ext == "BIN") {
+        // Binary format - need grid dimensions
+        TerrainReader::TerrainData terrain;
+        if (TerrainReader::load_binary(filename, terrain, params_.nx, params_.ny)) {
+            TerrainReader::print_statistics(terrain);
+
+            // Copy directly (assuming same grid)
+            for (int i = 0; i < n_cells; i++) {
+                z_elevation[i] = terrain.elevation[i];
+            }
+        } else {
+            std::cerr << "Warning: Failed to load terrain file, using flat bed" << std::endl;
+        }
+    } else {
+        std::cerr << "Warning: Unknown terrain file format: " << ext << std::endl;
+        std::cerr << "Supported formats: .asc (ASCII Grid), .bin (Binary)" << std::endl;
+    }
+
+    // Copy elevation data to host cells
+    copy_to_host();
+    for (int i = 0; i < n_cells; i++) {
+        h_cells_[i].z = z_elevation[i];
+    }
+    copy_to_device();
+
+    // Cleanup
+    delete[] z_elevation;
+
+    if (!use_multi_gpu_ || multi_gpu_->is_root()) {
+        std::cout << "Bed elevation loaded successfully" << std::endl;
+    }
 }
 
 real_t HydroSisSolver::compute_timestep() {
