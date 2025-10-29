@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Generated output files from examples
+prepost/examples/*.png
+prepost/examples/*.jpg
+prepost/examples/*.gif
+prepost/examples/*.mp4
+prepost/examples/*.vtk
+prepost/examples/*.asc
+prepost/examples/*.txt
+prepost/examples/*.json
+prepost/examples/*.ini
+prepost/examples/*.npz
+
+# Solver output directories
+prepost/output/
+output/
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
