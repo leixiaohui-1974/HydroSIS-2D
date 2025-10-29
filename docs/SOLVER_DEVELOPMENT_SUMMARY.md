@@ -476,8 +476,68 @@ VECTORS velocity float
 
 ---
 
-**文档版本**: 1.0
+## Update: Boundary Condition Integration (2025-10-29)
+
+### Overview
+
+The solver has been enhanced with full integration of the preprocessing module's boundary condition system. This enables flexible BC specification beyond the initial hardcoded wall boundaries.
+
+### Supported Boundary Conditions
+
+The solver now supports 4 boundary condition types:
+
+1. **WALL (Reflective)**: No flow through boundary, velocity reflected
+2. **INFLOW (Fixed)**: Specified depth and velocity at boundary
+3. **OUTFLOW (Zero-gradient)**: Transmissive boundary for domain exit
+4. **TIME_SERIES**: Time-varying depth and velocity (linear interpolation)
+
+### Implementation
+
+**New Methods**:
+- `set_boundary_conditions(bc_manager)`: Configure BCs from BoundaryConditionManager
+- `_apply_bc_from_manager()`: Apply configured BCs during each time step
+- `_apply_bc_west/east/south/north()`: Boundary-specific BC application
+
+**Backward Compatibility**: Maintained - solver defaults to wall boundaries if no BC manager is set.
+
+### Testing
+
+**New Test File**: `tests/test_solver_bc_integration.py`
+- 6 comprehensive integration tests
+- All tests passing ✅
+- Test coverage: Inflow/outflow, walls, time-series, mass balance, validation
+
+**Total Tests**: 168 (23 solver-specific tests)
+
+### Documentation
+
+Detailed documentation available in:
+- `docs/BC_INTEGRATION_SUMMARY.md` - Complete technical summary with examples
+
+### Usage Example
+
+```python
+from preprocessing.boundary_conditions import (
+    BoundaryConditionManager, InflowBC, OutflowBC, WallBC
+)
+
+# Setup boundary conditions
+bc_manager = BoundaryConditionManager(domain)
+bc_manager.set_boundary(InflowBC(BCLocation.WEST, depth=5.0, velocity_x=2.0))
+bc_manager.set_boundary(OutflowBC(BCLocation.EAST, outflow_type='zero_gradient'))
+bc_manager.set_boundary(WallBC(BCLocation.SOUTH))
+bc_manager.set_boundary(WallBC(BCLocation.NORTH))
+
+# Apply to solver
+solver.set_boundary_conditions(bc_manager)
+```
+
+**Status**: ✅ Complete and validated
+
+---
+
+**文档版本**: 1.1
 **最后更新**: 2025-10-29
-**状态**: Python原型完成，CUDA开发待启动
+**状态**: Python原型完成（含边界条件集成），CUDA开发待启动
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
