@@ -490,47 +490,193 @@ __global__ void apply_boundary_conditions_kernel(
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
+    // ========================================================================
     // Left boundary (i = 0, 1)
-    if (idx < ny && bc_types[0] == 0) { // Wall
-        for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
-            int i = halo;
-            int i_ghost = 2 * Constants::HALO_WIDTH - 1 - i;
-            cells[idx * nx + i].U.h = cells[idx * nx + i_ghost].U.h;
-            cells[idx * nx + i].U.qx = -cells[idx * nx + i_ghost].U.qx;
-            cells[idx * nx + i].U.qy = cells[idx * nx + i_ghost].U.qy;
+    // ========================================================================
+    if (idx < ny) {
+        int bc_type = bc_types[0];
+
+        if (bc_type == 0) {
+            // Wall boundary (reflective)
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = halo;
+                int i_ghost = 2 * Constants::HALO_WIDTH - 1 - i;
+                cells[idx * nx + i].U.h = cells[idx * nx + i_ghost].U.h;
+                cells[idx * nx + i].U.qx = -cells[idx * nx + i_ghost].U.qx; // Reflect x-velocity
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_ghost].U.qy;
+            }
+        } else if (bc_type == 1) {
+            // Open boundary (zero-gradient extrapolation)
+            int i_interior = Constants::HALO_WIDTH;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = halo;
+                cells[idx * nx + i].U.h = cells[idx * nx + i_interior].U.h;
+                cells[idx * nx + i].U.qx = cells[idx * nx + i_interior].U.qx;
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_interior].U.qy;
+            }
+        } else if (bc_type == 2) {
+            // Inflow boundary (fixed state)
+            // TODO: Get inflow values from params (for now, use simple approach)
+            real_t h_inflow = 5.0;  // Will be configurable
+            real_t u_inflow = 1.0;
+            real_t v_inflow = 0.0;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = halo;
+                cells[idx * nx + i].U.h = h_inflow;
+                cells[idx * nx + i].U.qx = h_inflow * u_inflow;
+                cells[idx * nx + i].U.qy = h_inflow * v_inflow;
+            }
+        } else if (bc_type == 3) {
+            // Outflow boundary (radiation/advective)
+            int i_interior = Constants::HALO_WIDTH;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = halo;
+                // Simple zero-gradient (can be improved with wave speed)
+                cells[idx * nx + i].U.h = cells[idx * nx + i_interior].U.h;
+                cells[idx * nx + i].U.qx = cells[idx * nx + i_interior].U.qx;
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_interior].U.qy;
+            }
         }
     }
 
+    // ========================================================================
     // Right boundary
-    if (idx < ny && bc_types[1] == 0) { // Wall
-        for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
-            int i = nx - 1 - halo;
-            int i_ghost = 2 * (nx - Constants::HALO_WIDTH) - 1 - i;
-            cells[idx * nx + i].U.h = cells[idx * nx + i_ghost].U.h;
-            cells[idx * nx + i].U.qx = -cells[idx * nx + i_ghost].U.qx;
-            cells[idx * nx + i].U.qy = cells[idx * nx + i_ghost].U.qy;
+    // ========================================================================
+    if (idx < ny) {
+        int bc_type = bc_types[1];
+
+        if (bc_type == 0) {
+            // Wall boundary
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = nx - 1 - halo;
+                int i_ghost = 2 * (nx - Constants::HALO_WIDTH) - 1 - i;
+                cells[idx * nx + i].U.h = cells[idx * nx + i_ghost].U.h;
+                cells[idx * nx + i].U.qx = -cells[idx * nx + i_ghost].U.qx;
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_ghost].U.qy;
+            }
+        } else if (bc_type == 1) {
+            // Open boundary
+            int i_interior = nx - Constants::HALO_WIDTH - 1;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = nx - 1 - halo;
+                cells[idx * nx + i].U.h = cells[idx * nx + i_interior].U.h;
+                cells[idx * nx + i].U.qx = cells[idx * nx + i_interior].U.qx;
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_interior].U.qy;
+            }
+        } else if (bc_type == 2) {
+            // Inflow boundary
+            real_t h_inflow = 5.0;
+            real_t u_inflow = -1.0;  // Negative for right boundary
+            real_t v_inflow = 0.0;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = nx - 1 - halo;
+                cells[idx * nx + i].U.h = h_inflow;
+                cells[idx * nx + i].U.qx = h_inflow * u_inflow;
+                cells[idx * nx + i].U.qy = h_inflow * v_inflow;
+            }
+        } else if (bc_type == 3) {
+            // Outflow boundary
+            int i_interior = nx - Constants::HALO_WIDTH - 1;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int i = nx - 1 - halo;
+                cells[idx * nx + i].U.h = cells[idx * nx + i_interior].U.h;
+                cells[idx * nx + i].U.qx = cells[idx * nx + i_interior].U.qx;
+                cells[idx * nx + i].U.qy = cells[idx * nx + i_interior].U.qy;
+            }
         }
     }
 
+    // ========================================================================
     // Bottom boundary
-    if (idx < nx && bc_types[2] == 0) { // Wall
-        for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
-            int j = halo;
-            int j_ghost = 2 * Constants::HALO_WIDTH - 1 - j;
-            cells[j * nx + idx].U.h = cells[j_ghost * nx + idx].U.h;
-            cells[j * nx + idx].U.qx = cells[j_ghost * nx + idx].U.qx;
-            cells[j * nx + idx].U.qy = -cells[j_ghost * nx + idx].U.qy;
+    // ========================================================================
+    if (idx < nx) {
+        int bc_type = bc_types[2];
+
+        if (bc_type == 0) {
+            // Wall boundary
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = halo;
+                int j_ghost = 2 * Constants::HALO_WIDTH - 1 - j;
+                cells[j * nx + idx].U.h = cells[j_ghost * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_ghost * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = -cells[j_ghost * nx + idx].U.qy;
+            }
+        } else if (bc_type == 1) {
+            // Open boundary
+            int j_interior = Constants::HALO_WIDTH;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = halo;
+                cells[j * nx + idx].U.h = cells[j_interior * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_interior * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = cells[j_interior * nx + idx].U.qy;
+            }
+        } else if (bc_type == 2) {
+            // Inflow boundary
+            real_t h_inflow = 5.0;
+            real_t u_inflow = 0.0;
+            real_t v_inflow = 1.0;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = halo;
+                cells[j * nx + idx].U.h = h_inflow;
+                cells[j * nx + idx].U.qx = h_inflow * u_inflow;
+                cells[j * nx + idx].U.qy = h_inflow * v_inflow;
+            }
+        } else if (bc_type == 3) {
+            // Outflow boundary
+            int j_interior = Constants::HALO_WIDTH;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = halo;
+                cells[j * nx + idx].U.h = cells[j_interior * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_interior * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = cells[j_interior * nx + idx].U.qy;
+            }
         }
     }
 
+    // ========================================================================
     // Top boundary
-    if (idx < nx && bc_types[3] == 0) { // Wall
-        for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
-            int j = ny - 1 - halo;
-            int j_ghost = 2 * (ny - Constants::HALO_WIDTH) - 1 - j;
-            cells[j * nx + idx].U.h = cells[j_ghost * nx + idx].U.h;
-            cells[j * nx + idx].U.qx = cells[j_ghost * nx + idx].U.qx;
-            cells[j * nx + idx].U.qy = -cells[j_ghost * nx + idx].U.qy;
+    // ========================================================================
+    if (idx < nx) {
+        int bc_type = bc_types[3];
+
+        if (bc_type == 0) {
+            // Wall boundary
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = ny - 1 - halo;
+                int j_ghost = 2 * (ny - Constants::HALO_WIDTH) - 1 - j;
+                cells[j * nx + idx].U.h = cells[j_ghost * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_ghost * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = -cells[j_ghost * nx + idx].U.qy;
+            }
+        } else if (bc_type == 1) {
+            // Open boundary
+            int j_interior = ny - Constants::HALO_WIDTH - 1;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = ny - 1 - halo;
+                cells[j * nx + idx].U.h = cells[j_interior * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_interior * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = cells[j_interior * nx + idx].U.qy;
+            }
+        } else if (bc_type == 2) {
+            // Inflow boundary
+            real_t h_inflow = 5.0;
+            real_t u_inflow = 0.0;
+            real_t v_inflow = -1.0;  // Negative for top boundary
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = ny - 1 - halo;
+                cells[j * nx + idx].U.h = h_inflow;
+                cells[j * nx + idx].U.qx = h_inflow * u_inflow;
+                cells[j * nx + idx].U.qy = h_inflow * v_inflow;
+            }
+        } else if (bc_type == 3) {
+            // Outflow boundary
+            int j_interior = ny - Constants::HALO_WIDTH - 1;
+            for (int halo = 0; halo < Constants::HALO_WIDTH; halo++) {
+                int j = ny - 1 - halo;
+                cells[j * nx + idx].U.h = cells[j_interior * nx + idx].U.h;
+                cells[j * nx + idx].U.qx = cells[j_interior * nx + idx].U.qx;
+                cells[j * nx + idx].U.qy = cells[j_interior * nx + idx].U.qy;
+            }
         }
     }
 }
