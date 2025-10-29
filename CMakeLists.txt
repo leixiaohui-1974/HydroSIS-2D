@@ -57,6 +57,8 @@ set(CXX_SOURCES
     src/solver/hydrosis_solver.cpp
     src/utils/vtk_writer.cpp
     src/utils/validation.cpp
+    src/utils/config_reader.cpp
+    src/utils/performance_monitor.cpp
     src/main.cpp
 )
 

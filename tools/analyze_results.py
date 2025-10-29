@@ -172,10 +172,22 @@ class ResultsAnalyzer:
 
             # Extract centerline
             y_center = (data['y'].max() + data['y'].min()) / 2.0
-            mask = np.abs(data['y'] - y_center) < 0.1
+            # Find all unique y values
+            y_unique = np.unique(data['y'])
+            # Find the y value closest to center
+            y_closest_idx = np.argmin(np.abs(y_unique - y_center))
+            y_target = y_unique[y_closest_idx]
+
+            # Use larger tolerance or exact match
+            dy = y_unique[1] - y_unique[0] if len(y_unique) > 1 else 1.0
+            mask = np.abs(data['y'] - y_target) < dy * 0.1
 
             x_profile = data['x'][mask]
             h_numerical = data['h'][mask]
+
+            if len(x_profile) == 0:
+                print("Error: No data points found on centerline")
+                return
 
             # Sort by x
             sort_idx = np.argsort(x_profile)
