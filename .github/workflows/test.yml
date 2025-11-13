@@ -1,0 +1,222 @@
+name: HydroSIS-2D Tests
+
+on:
+  push:
+    branches: [ main, develop, 'claude/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Job 1: Python unit tests (CPU only, no GPU required)
+  unit-tests-cpu:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-timeout
+
+      - name: Run CPU unit tests
+        run: |
+          cd prepost
+          pytest tests/test_*.py \
+            --ignore=tests/test_gpu*.py \
+            --ignore=tests/e2e/ \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term \
+            --timeout=300 \
+            -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./prepost/coverage.xml
+          flags: unittests-cpu
+          name: codecov-cpu-py${{ matrix.python-version }}
+
+  # Job 2: E2E tests (CPU only, framework validation)
+  e2e-tests-cpu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-timeout
+
+      - name: Run E2E tests (CPU)
+        run: |
+          cd prepost
+          pytest tests/e2e/ \
+            --timeout=600 \
+            -v -s
+
+      - name: Archive E2E test outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-outputs
+          path: |
+            /tmp/pytest-of-*/
+            prepost/tests/e2e/output/
+          retention-days: 7
+
+  # Job 3: Code quality checks
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort
+
+      - name: Check code formatting with black
+        run: |
+          black --check --diff prepost/
+
+      - name: Check import sorting with isort
+        run: |
+          isort --check-only --diff prepost/
+
+      - name: Lint with flake8
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 prepost/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 prepost/ --count --max-line-length=100 --statistics --exit-zero
+
+  # Job 4: Documentation build
+  docs-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install sphinx sphinx-rtd-theme
+
+      - name: Check documentation files
+        run: |
+          echo "Checking markdown documentation..."
+          find docs -name "*.md" -type f | while read file; do
+            echo "✓ $file exists"
+          done
+
+      - name: Verify README
+        run: |
+          test -f README.md || (echo "README.md missing!" && exit 1)
+          test -f prepost/README.md || (echo "prepost/README.md missing!" && exit 1)
+
+  # Job 5: GPU tests (requires self-hosted runner with GPU)
+  # This job will be skipped on GitHub's runners but can run on self-hosted
+  gpu-tests:
+    runs-on: ${{ matrix.os }}
+    if: false  # Disable until we have GPU runner
+    strategy:
+      matrix:
+        os: [self-hosted]  # Requires self-hosted runner with GPU
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check NVIDIA GPU
+        run: nvidia-smi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install CUDA dependencies
+        run: |
+          # This assumes CUDA toolkit is already installed on self-hosted runner
+          nvidia-smi
+          nvcc --version
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-timeout
+
+      - name: Build CUDA solver
+        run: |
+          cd src/solver
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_CUDA_ARCHITECTURES=native
+          make -j$(nproc)
+
+      - name: Run GPU unit tests
+        run: |
+          cd prepost
+          pytest tests/test_gpu*.py -v --timeout=600
+
+      - name: Run GPU-CPU consistency tests
+        run: |
+          cd prepost
+          pytest tests/test_gpu_cpu_consistency.py -v --timeout=600
+
+      - name: Run E2E tests with GPU
+        run: |
+          cd prepost
+          pytest tests/e2e/ -v -s --timeout=1200 --gpu
+
+  # Job 6: Performance regression tests (manual trigger)
+  performance-tests:
+    runs-on: ${{ matrix.os }}
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[benchmark]')
+    strategy:
+      matrix:
+        os: [self-hosted]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run performance benchmarks
+        run: |
+          cd prepost
+          pytest tests/test_performance_regression.py -v --timeout=3600
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: tests/performance_baseline.json
