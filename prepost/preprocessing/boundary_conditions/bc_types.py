@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Boundary condition types for HydroSIS-2D
 

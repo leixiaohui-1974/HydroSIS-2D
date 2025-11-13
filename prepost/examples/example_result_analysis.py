@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Example 4: Result Analysis and Statistics
 
@@ -123,17 +124,17 @@ def example_3_mass_conservation(analyzer):
 
     conservation = analyzer.check_mass_conservation()
 
-    print(f"Reference volume: {conservation['reference_volume']:.2f} m³")
-    print(f"Final volume: {conservation['final_volume']:.2f} m³")
-    print(f"Volume change: {conservation['volume_change']:.2f} m³")
+    print(f"Reference volume: {conservation['reference_volume']:.2f} m^3")
+    print(f"Final volume: {conservation['final_volume']:.2f} m^3")
+    print(f"Volume change: {conservation['volume_change']:.2f} m^3")
     print(f"Maximum relative error: {conservation['max_error']*100:.4f}%")
     print(f"Mean relative error: {conservation['mean_error']*100:.4f}%")
     print()
 
     if conservation['max_error'] < 0.001:
-        print("✓ Mass is well conserved (error < 0.1%)")
+        print("[OK] Mass is well conserved (error < 0.1%)")
     else:
-        print("⚠ Mass conservation may have issues")
+        print("[WARN] Mass conservation may have issues")
     print()
 
 
@@ -244,11 +245,11 @@ def main():
     print("=" * 60)
     print()
     print("Key capabilities demonstrated:")
-    print("  ✓ Loading simulation results")
-    print("  ✓ Computing temporal statistics (max, time of max, duration)")
-    print("  ✓ Checking mass conservation")
-    print("  ✓ Field statistics and percentiles")
-    print("  ✓ Profile extraction along lines")
+    print("  [OK] Loading simulation results")
+    print("  [OK] Computing temporal statistics (max, time of max, duration)")
+    print("  [OK] Checking mass conservation")
+    print("  [OK] Field statistics and percentiles")
+    print("  [OK] Profile extraction along lines")
     print()
 
 

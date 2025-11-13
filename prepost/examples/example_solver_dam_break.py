@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example: 1D Dam Break Problem using Shallow Water Solver
 
@@ -5,7 +6,7 @@ This example demonstrates the use of the Python shallow water solver
 for a classical dam break problem.
 
 Physical Setup:
-    - Domain: 200m × 20m (quasi-1D in x-direction)
+    - Domain: 200m x 20m (quasi-1D in x-direction)
     - Dam at x = 100m
     - Upstream depth: 10m
     - Downstream depth: 1m
@@ -42,7 +43,7 @@ def main():
     mesh_gen = MeshGenerator(domain)
     mesh = mesh_gen.generate_uniform_mesh(nx=200, ny=20)
 
-    print(f"   Grid: {mesh.nx} × {mesh.ny} = {mesh.ncells:,} cells")
+    print(f"   Grid: {mesh.nx} x {mesh.ny} = {mesh.ncells:,} cells")
     print(f"   Cell size: dx={mesh.dx:.2f}m, dy={mesh.dy:.2f}m")
 
     # 2. Setup terrain (flat bed)
@@ -92,7 +93,7 @@ def main():
     print(f"Simulated time:       {stats['simulated_time']:.3f} s")
     print(f"Wall clock time:      {stats['wall_time']:.2f} s")
     print(f"Speed factor:         {stats['speed_factor']:.2f}x realtime")
-    print(f"Final mass:           {stats['final_mass']:.4f} m³")
+    print(f"Final mass:           {stats['final_mass']:.4f} m^3")
     print(f"Mass conservation:    {stats['mass_error']:+.6f}%")
 
     # 7. Visualize results

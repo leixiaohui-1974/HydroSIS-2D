@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Boundary conditions module for HydroSIS-2D preprocessing
 

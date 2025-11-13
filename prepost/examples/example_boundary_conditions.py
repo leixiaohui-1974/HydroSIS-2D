@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example: Boundary Conditions Setup for HydroSIS-2D
 
@@ -43,11 +44,11 @@ def example_1_basic_wall_boundaries():
 
     # Validate
     is_valid, errors = manager.validate()
-    print(f"\nValidation: {'✓ PASSED' if is_valid else '✗ FAILED'}")
+    print(f"\nValidation: {'[OK] PASSED' if is_valid else '[ERROR] FAILED'}")
 
     # Export to JSON
     manager.export_to_json('bc_enclosed.json')
-    print("\n✓ Exported to 'bc_enclosed.json'")
+    print("\n[OK] Exported to 'bc_enclosed.json'")
 
 
 def example_2_channel_flow():
@@ -71,7 +72,7 @@ def example_2_channel_flow():
 
     # Export
     manager.export_to_json('bc_channel.json')
-    print("\n✓ Exported to 'bc_channel.json'")
+    print("\n[OK] Exported to 'bc_channel.json'")
 
 
 def example_3_time_series_inflow():
@@ -121,7 +122,7 @@ def example_3_time_series_inflow():
 
     plt.tight_layout()
     plt.savefig('bc_time_series.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved time series plot to 'bc_time_series.png'")
+    print("\n[OK] Saved time series plot to 'bc_time_series.png'")
 
     # Test interpolation
     print("\nInterpolation test:")
@@ -149,7 +150,7 @@ def example_4_periodic_boundaries():
 
     # Validate
     is_valid, errors = manager.validate()
-    print(f"\nValidation: {'✓ PASSED' if is_valid else '✗ FAILED'}")
+    print(f"\nValidation: {'[OK] PASSED' if is_valid else '[ERROR] FAILED'}")
 
 
 def example_5_function_based_bc():
@@ -222,7 +223,7 @@ def example_5_function_based_bc():
 
     plt.tight_layout()
     plt.savefig('bc_tidal.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved tidal variation plot to 'bc_tidal.png'")
+    print("\n[OK] Saved tidal variation plot to 'bc_tidal.png'")
 
 
 def example_6_boundary_visualization():
@@ -277,7 +278,7 @@ def example_6_boundary_visualization():
 
     plt.tight_layout()
     plt.savefig('bc_visualization.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved boundary visualization to 'bc_visualization.png'")
+    print("\n[OK] Saved boundary visualization to 'bc_visualization.png'")
 
     # Print boundary cell counts
     print("\nBoundary cell counts:")
@@ -323,15 +324,15 @@ def example_7_complex_scenario():
     # Validate
     is_valid, errors = manager.validate()
     if is_valid:
-        print("\n✓ Configuration is valid and ready for simulation")
+        print("\n[OK] Configuration is valid and ready for simulation")
     else:
-        print("\n✗ Configuration has errors:")
+        print("\n[ERROR] Configuration has errors:")
         for error in errors:
             print(f"  - {error}")
 
     # Export
     manager.export_to_json('bc_complex.json')
-    print("\n✓ Exported to 'bc_complex.json'")
+    print("\n[OK] Exported to 'bc_complex.json'")
 
 
 def example_8_import_export():
@@ -345,11 +346,11 @@ def example_8_import_export():
     manager1 = BoundaryConditionManager(domain)
     manager1.set_channel_bcs(inflow_depth=3.5, inflow_velocity=1.8)
     manager1.export_to_json('bc_export_test.json')
-    print("✓ Exported boundary conditions")
+    print("[OK] Exported boundary conditions")
 
     # Import
     manager2 = BoundaryConditionManager.import_from_json('bc_export_test.json')
-    print("✓ Imported boundary conditions")
+    print("[OK] Imported boundary conditions")
 
     # Verify
     print("\nVerifying import:")

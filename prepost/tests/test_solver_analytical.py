@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Analytical validation tests for shallow water solver
 
@@ -203,7 +204,7 @@ class TestParabolicBowl:
         - h0 = 10 m (max depth at center)
         - B = 0.01 m^-1 (bed curvature)
         - epsilon = 5 m (oscillation amplitude)
-        - Period T = 2π/ω ≈ 62.8 s
+        - Period T = 2π/ω ~= 62.8 s
         """
         # Domain: symmetric around origin
         domain = DomainParams(-50, 50, -50, 50)
@@ -367,7 +368,7 @@ class TestDamBreakAnalytical:
             x: Position [m]
             t: Time [s]
             h_L: Initial depth on left [m]
-            g: Gravity [m/s²]
+            g: Gravity [m/s^2]
 
         Returns:
             h, u: Depth and velocity

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Initial condition types for HydroSIS-2D
 

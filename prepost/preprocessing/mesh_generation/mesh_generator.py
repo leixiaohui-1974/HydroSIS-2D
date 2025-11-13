@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Basic mesh generator for HydroSIS-2D
 
@@ -91,7 +92,7 @@ class StructuredMesh:
 
         self.x, self.y = np.meshgrid(x_centers, y_centers, indexing='ij')
 
-        logger.info(f"Created structured mesh: {self.nx}×{self.ny} cells, "
+        logger.info(f"Created structured mesh: {self.nx}x{self.ny} cells, "
                    f"dx={self.dx:.4f}, dy={self.dy:.4f}")
 
     @property
@@ -176,7 +177,7 @@ class MeshGenerator:
         self.domain = domain
         self.mesh = None
         logger.info(f"Initialized MeshGenerator for domain: "
-                   f"[{domain.xmin}, {domain.xmax}] × [{domain.ymin}, {domain.ymax}]")
+                   f"[{domain.xmin}, {domain.xmax}] x [{domain.ymin}, {domain.ymax}]")
 
     def generate_uniform_mesh(self, nx: int, ny: int) -> StructuredMesh:
         """
@@ -293,7 +294,7 @@ ymax = {self.domain.ymax}
 
         ax.set_xlabel('X [m]')
         ax.set_ylabel('Y [m]')
-        ax.set_title(f'Structured Mesh: {self.mesh.nx}×{self.mesh.ny} cells')
+        ax.set_title(f'Structured Mesh: {self.mesh.nx}x{self.mesh.ny} cells')
         ax.set_aspect('equal')
         ax.grid(False)
 
@@ -301,7 +302,7 @@ ymax = {self.domain.ymax}
         info_text = (f"Cells: {self.mesh.ncells}\n"
                     f"dx: {self.mesh.dx:.3f} m\n"
                     f"dy: {self.mesh.dy:.3f} m\n"
-                    f"Area: {self.mesh.get_cell_area():.3f} m²")
+                    f"Area: {self.mesh.get_cell_area():.3f} m^2")
         ax.text(0.02, 0.98, info_text, transform=ax.transAxes,
                verticalalignment='top', bbox=dict(boxstyle='round',
                facecolor='wheat', alpha=0.8))

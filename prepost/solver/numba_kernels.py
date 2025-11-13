@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Numba-optimized computational kernels for shallow water solver
 
@@ -10,9 +11,9 @@ Usage:
     Falls back gracefully to NumPy if Numba is not available.
 
 Performance:
-    - Small grids (50×50):    ~1.5x speedup  (marginal)
-    - Medium grids (100×100): ~4x speedup    (good)
-    - Large grids (200×200):  ~11x speedup   (excellent!)
+    - Small grids (50x50):    ~1.5x speedup  (marginal)
+    - Medium grids (100x100): ~4x speedup    (good)
+    - Large grids (200x200):  ~11x speedup   (excellent!)
 """
 
 import numpy as np
@@ -45,7 +46,7 @@ def compute_hll_flux_x_numba(h, u, v, g=9.81, h_dry=1e-4):
     v : ndarray (nx, ny)
         Velocity in y-direction [m/s]
     g : float
-        Gravitational acceleration [m/s²]
+        Gravitational acceleration [m/s^2]
     h_dry : float
         Dry bed threshold [m]
 
@@ -140,7 +141,7 @@ def compute_hll_flux_y_numba(h, u, v, g=9.81, h_dry=1e-4):
     v : ndarray (nx, ny)
         Velocity in y-direction [m/s]
     g : float
-        Gravitational acceleration [m/s²]
+        Gravitational acceleration [m/s^2]
     h_dry : float
         Dry bed threshold [m]
 
@@ -402,7 +403,7 @@ def compute_hll_flux_x_muscl_numba(h, u, v, dx, limiter_type=0, g=9.81, h_dry=1e
     limiter_type : int
         0 = minmod, 1 = superbee, 2 = van Leer
     g : float
-        Gravitational acceleration [m/s²]
+        Gravitational acceleration [m/s^2]
     h_dry : float
         Dry bed threshold [m]
 
@@ -528,7 +529,7 @@ def compute_hll_flux_y_muscl_numba(h, u, v, dy, limiter_type=0, g=9.81, h_dry=1e
     limiter_type : int
         0 = minmod, 1 = superbee, 2 = van Leer
     g : float
-        Gravitational acceleration [m/s²]
+        Gravitational acceleration [m/s^2]
     h_dry : float
         Dry bed threshold [m]
 
@@ -728,6 +729,6 @@ if __name__ == '__main__':
 
         print(f"Numba flux computation: {elapsed:.3f}s for 100 iterations")
         print(f"Output shape: {flux_h.shape}")
-        print("✓ Test passed!")
+        print("[OK] Test passed!")
     else:
         print("Install Numba with: pip install numba")

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Mesh quality assessment tools for HydroSIS-2D
 
@@ -110,7 +111,7 @@ class MeshQualityChecker:
         # Check 1: Aspect ratio
         if self.mesh.aspect_ratio > 5.0 or self.mesh.aspect_ratio < 0.2:
             self.warnings.append(
-                f"⚠️  Aspect ratio {self.mesh.aspect_ratio:.2f} is outside "
+                f"[WARN]️  Aspect ratio {self.mesh.aspect_ratio:.2f} is outside "
                 f"recommended range [0.2, 5.0]"
             )
             all_passed = False
@@ -118,26 +119,26 @@ class MeshQualityChecker:
         # Check 2: Resolution
         if self.mesh.dx < 0.1:
             self.warnings.append(
-                f"⚠️  Cell size dx={self.mesh.dx:.3f} m may be too small "
+                f"[WARN]️  Cell size dx={self.mesh.dx:.3f} m may be too small "
                 f"(computational cost warning)"
             )
 
         if self.mesh.dx > 100:
             self.warnings.append(
-                f"⚠️  Cell size dx={self.mesh.dx:.3f} m may be too large "
+                f"[WARN]️  Cell size dx={self.mesh.dx:.3f} m may be too large "
                 f"(accuracy warning)"
             )
 
         # Check 3: Total cell count
         if self.mesh.ncells > 10_000_000:
             self.warnings.append(
-                f"⚠️  Large mesh ({self.mesh.ncells:,} cells) may require "
+                f"[WARN]️  Large mesh ({self.mesh.ncells:,} cells) may require "
                 f"significant computational resources"
             )
 
         if self.mesh.ncells < 100:
             self.warnings.append(
-                f"⚠️  Very coarse mesh ({self.mesh.ncells} cells) may have "
+                f"[WARN]️  Very coarse mesh ({self.mesh.ncells} cells) may have "
                 f"limited accuracy"
             )
 
@@ -145,7 +146,7 @@ class MeshQualityChecker:
         domain_aspect = self.mesh.domain.length_y / self.mesh.domain.length_x
         if domain_aspect > 10 or domain_aspect < 0.1:
             self.warnings.append(
-                f"⚠️  Domain aspect ratio {domain_aspect:.2f} is extreme, "
+                f"[WARN]️  Domain aspect ratio {domain_aspect:.2f} is extreme, "
                 f"consider reviewing domain definition"
             )
 
@@ -158,7 +159,7 @@ class MeshQualityChecker:
         Args:
             max_velocity: Maximum expected flow velocity [m/s]
             dt: Time step [s]
-            gravity: Gravitational acceleration [m/s²]
+            gravity: Gravitational acceleration [m/s^2]
 
         Returns:
             Dictionary with CFL analysis
@@ -190,7 +191,7 @@ class MeshQualityChecker:
 
         if not is_stable:
             self.warnings.append(
-                f"⚠️  CFL condition violated: CFL={cfl_max:.3f} > 0.5. "
+                f"[WARN]️  CFL condition violated: CFL={cfl_max:.3f} > 0.5. "
                 f"Reduce time step to dt < {result['recommended_dt']:.4f} s"
             )
 
@@ -207,7 +208,7 @@ class MeshQualityChecker:
             simulation_time: Total simulation time [s]
             cfl_number: Target CFL number
             max_velocity: Maximum expected velocity [m/s]
-            gravity: Gravitational acceleration [m/s²]
+            gravity: Gravitational acceleration [m/s^2]
 
         Returns:
             Dictionary with cost estimates
@@ -260,8 +261,8 @@ class MeshQualityChecker:
         # Basic info
         report.append("Basic Information:")
         report.append(f"  Total cells: {self.metrics.total_cells:,}")
-        report.append(f"  Grid: {self.mesh.nx} × {self.mesh.ny}")
-        report.append(f"  Domain: [{self.mesh.domain.xmin:.2f}, {self.mesh.domain.xmax:.2f}] × "
+        report.append(f"  Grid: {self.mesh.nx} x {self.mesh.ny}")
+        report.append(f"  Domain: [{self.mesh.domain.xmin:.2f}, {self.mesh.domain.xmax:.2f}] x "
                      f"[{self.mesh.domain.ymin:.2f}, {self.mesh.domain.ymax:.2f}] m")
         report.append("")
 
@@ -269,14 +270,14 @@ class MeshQualityChecker:
         report.append("Cell Properties:")
         report.append(f"  Cell size (dx): {self.mesh.dx:.4f} m")
         report.append(f"  Cell size (dy): {self.mesh.dy:.4f} m")
-        report.append(f"  Cell area: {self.mesh.get_cell_area():.6f} m²")
+        report.append(f"  Cell area: {self.mesh.get_cell_area():.6f} m^2")
         report.append(f"  Aspect ratio: {self.mesh.aspect_ratio:.4f}")
         report.append("")
 
         # Quality metrics
         report.append("Quality Metrics:")
         report.append(f"  Uniformity score: {self.metrics.uniformity_score:.3f}")
-        report.append(f"  Quality check: {'✓ PASSED' if self.metrics.passed_checks else '✗ WARNINGS'}")
+        report.append(f"  Quality check: {'[OK] PASSED' if self.metrics.passed_checks else '[ERROR] WARNINGS'}")
         report.append("")
 
         # Warnings

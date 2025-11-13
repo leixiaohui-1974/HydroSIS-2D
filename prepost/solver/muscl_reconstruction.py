@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 MUSCL reconstruction for second-order spatial accuracy
 
@@ -273,7 +274,7 @@ def test_reconstruction():
     for j in range(ny):
         u[:, j] = np.sin(2 * np.pi * x / (nx * dx))
 
-    print(f"\nGrid: {nx}×{ny}, dx={dx}")
+    print(f"\nGrid: {nx}x{ny}, dx={dx}")
     print(f"Test function: u = sin(2πx/L)")
 
     # Test different limiters

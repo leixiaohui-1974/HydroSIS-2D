@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Adaptive mesh generation for HydroSIS-2D
 
@@ -80,7 +81,7 @@ class AdaptiveMeshGenerator(MeshGenerator):
         zone = RefinementZone(xmin, xmax, ymin, ymax, refinement_level, priority)
         self.refinement_zones.append(zone)
         logger.info(f"Added refinement zone: level={refinement_level}, "
-                   f"bounds=[{xmin:.2f}, {xmax:.2f}] × [{ymin:.2f}, {ymax:.2f}]")
+                   f"bounds=[{xmin:.2f}, {xmax:.2f}] x [{ymin:.2f}, {ymax:.2f}]")
 
     def add_circular_refinement_zone(self, center_x: float, center_y: float,
                                     radius: float, refinement_level: int = 1) -> None:
@@ -209,7 +210,7 @@ class AdaptiveMeshGenerator(MeshGenerator):
         fine_nx = base_nx * refinement_factor
         fine_ny = base_ny * refinement_factor
 
-        logger.info(f"Generating uniform mesh at finest resolution: {fine_nx}×{fine_ny}")
+        logger.info(f"Generating uniform mesh at finest resolution: {fine_nx}x{fine_ny}")
         self.mesh = self.generate_uniform_mesh(fine_nx, fine_ny)
 
         return self.mesh

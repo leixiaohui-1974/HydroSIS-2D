@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Geometry processing module for HydroSIS-2D preprocessing
 

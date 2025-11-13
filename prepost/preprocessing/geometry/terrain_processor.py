@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Terrain data processing tools for HydroSIS-2D
 
@@ -98,7 +99,7 @@ class TerrainProcessor:
         elevation = interpolator(mesh_points).reshape(mesh.nx, mesh.ny)
 
         logger.info(f"Interpolated terrain to mesh using {method} method")
-        logger.info(f"  Mesh size: {mesh.nx} × {mesh.ny}")
+        logger.info(f"  Mesh size: {mesh.nx} x {mesh.ny}")
         logger.info(f"  Elevation range: [{np.min(elevation):.2f}, {np.max(elevation):.2f}] m")
 
         return elevation
@@ -337,8 +338,8 @@ class TerrainProcessor:
         )
 
         logger.info(f"Resampled terrain from {self.terrain.cellsize:.2f}m to {new_cellsize:.2f}m")
-        logger.info(f"  Old size: {self.terrain.ncols} × {self.terrain.nrows}")
-        logger.info(f"  New size: {new_ncols} × {new_nrows}")
+        logger.info(f"  Old size: {self.terrain.ncols} x {self.terrain.nrows}")
+        logger.info(f"  New size: {new_ncols} x {new_nrows}")
 
         return terrain_resampled
 
@@ -376,8 +377,8 @@ class TerrainProcessor:
             nodata_value=self.terrain.nodata_value
         )
 
-        logger.info(f"Clipped terrain to extent [{xmin}, {xmax}] × [{ymin}, {ymax}]")
-        logger.info(f"  New size: {terrain_clipped.ncols} × {terrain_clipped.nrows}")
+        logger.info(f"Clipped terrain to extent [{xmin}, {xmax}] x [{ymin}, {ymax}]")
+        logger.info(f"  New size: {terrain_clipped.ncols} x {terrain_clipped.nrows}")
 
         return terrain_clipped
 

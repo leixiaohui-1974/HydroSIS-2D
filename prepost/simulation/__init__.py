@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Simulation setup module for HydroSIS-2D
 

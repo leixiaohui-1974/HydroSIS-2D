@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Mesh I/O utilities for HydroSIS-2D
 

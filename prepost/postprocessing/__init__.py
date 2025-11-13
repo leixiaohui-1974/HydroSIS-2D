@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Postprocessing module for HydroSIS-2D
 

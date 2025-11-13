@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Colormap utilities for HydroSIS-2D visualizations
 

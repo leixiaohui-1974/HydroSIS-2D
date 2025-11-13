@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Statistical analysis tools for HydroSIS-2D results
 """

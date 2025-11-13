@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Complete End-to-End Workflow Example
 
@@ -55,8 +56,8 @@ def main():
     )
 
     print("   Configuration created with:")
-    print(f"     Domain: 200m × 40m")
-    print(f"     Grid: 200 × 40 = 8,000 cells")
+    print(f"     Domain: 200m x 40m")
+    print(f"     Grid: 200 x 40 = 8,000 cells")
     print(f"     Dam at 50% (x=100m)")
     print(f"     Upstream depth: 10m")
     print(f"     Downstream depth: 1m")
@@ -65,9 +66,9 @@ def main():
     print("\n1.2 Validating configuration...")
     is_valid, errors = config.validate()
     if is_valid:
-        print("   ✓ Configuration is valid")
+        print("   [OK] Configuration is valid")
     else:
-        print("   ✗ Configuration errors:")
+        print("   [ERROR] Configuration errors:")
         for err in errors:
             print(f"     - {err}")
         return
@@ -235,7 +236,7 @@ def create_comprehensive_plots(mesh, state, stats):
     plt.tight_layout()
     filename1 = os.path.join(output_dir, '1_centerline_profile.png')
     plt.savefig(filename1, dpi=150, bbox_inches='tight')
-    print(f"   ✓ Saved: {filename1}")
+    print(f"   [OK] Saved: {filename1}")
     plt.close()
 
     # ========================================================================
@@ -283,7 +284,7 @@ def create_comprehensive_plots(mesh, state, stats):
     levels_q = np.linspace(np.min(qx), np.max(qx), 25)
     cs4 = axes[1, 1].contourf(mesh.x, mesh.y, qx, levels=levels_q, cmap='viridis')
     axes[1, 1].contour(mesh.x, mesh.y, qx, levels=10, colors='black', linewidths=0.5, alpha=0.3)
-    plt.colorbar(cs4, ax=axes[1, 1], label='Unit Discharge [m²/s]')
+    plt.colorbar(cs4, ax=axes[1, 1], label='Unit Discharge [m^2/s]')
     axes[1, 1].axvline(x=100, color='r', linestyle='--', alpha=0.7, linewidth=2)
     axes[1, 1].set_xlabel('X [m]', fontweight='bold')
     axes[1, 1].set_ylabel('Y [m]', fontweight='bold')
@@ -293,7 +294,7 @@ def create_comprehensive_plots(mesh, state, stats):
     plt.tight_layout()
     filename2 = os.path.join(output_dir, '2_contour_maps.png')
     plt.savefig(filename2, dpi=150, bbox_inches='tight')
-    print(f"   ✓ Saved: {filename2}")
+    print(f"   [OK] Saved: {filename2}")
     plt.close()
 
     # ========================================================================
@@ -313,7 +314,7 @@ Time Steps:       {stats['steps']}
 Average dt:       {stats['simulated_time']/stats['steps']:.4f} s
 
 Mass Conservation:
-  Final Mass:     {stats['final_mass']:.2f} m³
+  Final Mass:     {stats['final_mass']:.2f} m^3
   Error:          {stats['mass_error']:+.6f}%
 
 Flow Characteristics:
@@ -352,7 +353,7 @@ Flow Characteristics:
     plt.tight_layout()
     filename3 = os.path.join(output_dir, '3_statistics.png')
     plt.savefig(filename3, dpi=150, bbox_inches='tight')
-    print(f"   ✓ Saved: {filename3}")
+    print(f"   [OK] Saved: {filename3}")
     plt.close()
 
 

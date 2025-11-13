@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 3D Visualization Engine for HydroSIS-2D
 

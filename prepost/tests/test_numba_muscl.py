@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests for Numba-optimized MUSCL reconstruction
 
@@ -317,21 +318,21 @@ class TestNumbaMUSCLPerformance:
 
         speedup = time_numpy / time_numba
 
-        print(f"\n性能基准测试 (100×100网格):")
+        print(f"\n性能基准测试 (100x100网格):")
         print(f"  NumPy MUSCL: {time_numpy:.3f}秒")
         print(f"  Numba MUSCL: {time_numba:.3f}秒")
         print(f"  加速比: {speedup:.2f}x")
 
-        # Numba should provide speedup on 100×100 grid
+        # Numba should provide speedup on 100x100 grid
         # (might be modest due to other solver components)
         assert speedup > 0.8, f"Numba significantly slower: {speedup:.2f}x"
 
         if speedup >= 1.2:
-            print(f"  ✓ Numba提供了 {speedup:.2f}x 加速")
+            print(f"  [OK] Numba提供了 {speedup:.2f}x 加速")
         elif speedup >= 0.95:
             print(f"  ~ Numba性能相当 ({speedup:.2f}x)")
         else:
-            print(f"  ⚠ Numba在此次运行中较慢 ({speedup:.2f}x)")
+            print(f"  [WARN] Numba在此次运行中较慢 ({speedup:.2f}x)")
 
     def test_numba_muscl_scaling(self):
         """
@@ -395,7 +396,7 @@ class TestNumbaMUSCLPerformance:
 
         print(f"\n性能扩展性测试:")
         for r in results:
-            print(f"  {r['nx']:3d}×{r['nx']:3d}: {r['speedup']:.2f}x加速")
+            print(f"  {r['nx']:3d}x{r['nx']:3d}: {r['speedup']:.2f}x加速")
 
         # Larger grids should generally have better speedup
         # (though this isn't guaranteed on every run)

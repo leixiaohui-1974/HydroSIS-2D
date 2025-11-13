@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tests for Numba JIT optimization integration
 
@@ -87,9 +88,9 @@ class TestNumbaCorrectness:
         mass_initial = np.sum(h0) * cell_area
 
         print(f"\nMass conservation:")
-        print(f"  Initial mass:  {mass_initial:.2f} m³")
-        print(f"  NumPy final:   {mass_numpy:.2f} m³")
-        print(f"  Numba final:   {mass_numba:.2f} m³")
+        print(f"  Initial mass:  {mass_initial:.2f} m^3")
+        print(f"  NumPy final:   {mass_numpy:.2f} m^3")
+        print(f"  Numba final:   {mass_numba:.2f} m^3")
         print(f"  NumPy error:   {abs(mass_numpy - mass_initial) / mass_initial * 100:.6f}%")
         print(f"  Numba error:   {abs(mass_numba - mass_initial) / mass_initial * 100:.6f}%")
 
@@ -136,7 +137,7 @@ class TestNumbaPerformance:
     @pytest.mark.skipif(not NUMBA_AVAILABLE, reason="Numba not installed")
     def test_numba_speedup_medium_grid(self):
         """
-        Benchmark Numba speedup on medium grid (100×100)
+        Benchmark Numba speedup on medium grid (100x100)
 
         Expected: ~3-4x speedup
         """
@@ -193,7 +194,7 @@ class TestNumbaPerformance:
 
         speedup = time_numpy / time_numba
 
-        print(f"\nNumba Performance Benchmark (100×100 grid):")
+        print(f"\nNumba Performance Benchmark (100x100 grid):")
         print(f"  NumPy time:  {time_numpy:.3f} s")
         print(f"  Numba time:  {time_numba:.3f} s")
         print(f"  Speedup:     {speedup:.2f}x")
@@ -208,11 +209,11 @@ class TestNumbaPerformance:
 
         # Performance note
         if speedup >= 1.1:
-            print(f"  ✓ Numba provided {speedup:.2f}x speedup")
+            print(f"  [OK] Numba provided {speedup:.2f}x speedup")
         elif speedup >= 0.9:
             print(f"  ~ Numba performance similar to NumPy ({speedup:.2f}x)")
         else:
-            print(f"  ⚠ Numba slower on this run ({speedup:.2f}x) - JIT overhead")
+            print(f"  [WARN] Numba slower on this run ({speedup:.2f}x) - JIT overhead")
 
         # Verify results are still correct
         max_diff_h = np.max(np.abs(solver_numpy.h - solver_numba.h))
@@ -222,7 +223,7 @@ class TestNumbaPerformance:
     @pytest.mark.skipif(not NUMBA_AVAILABLE, reason="Numba not installed")
     def test_numba_speedup_large_grid(self):
         """
-        Benchmark Numba speedup on large grid (200×200)
+        Benchmark Numba speedup on large grid (200x200)
 
         Expected: ~10-11x speedup
         """
@@ -279,7 +280,7 @@ class TestNumbaPerformance:
 
         speedup = time_numpy / time_numba
 
-        print(f"\nNumba Performance Benchmark (200×200 grid):")
+        print(f"\nNumba Performance Benchmark (200x200 grid):")
         print(f"  NumPy time:  {time_numpy:.3f} s")
         print(f"  Numba time:  {time_numba:.3f} s")
         print(f"  Speedup:     {speedup:.2f}x")
