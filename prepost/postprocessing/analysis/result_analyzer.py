@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Result analyzer for HydroSIS-2D simulation outputs
 
@@ -69,7 +70,7 @@ class SimulationResult:
         Compute Froude number
 
         Args:
-            gravity: Gravitational acceleration [m/s²]
+            gravity: Gravitational acceleration [m/s^2]
 
         Returns:
             Froude number array
@@ -310,7 +311,7 @@ class ResultAnalyzer:
             result: SimulationResult object
 
         Returns:
-            Total volume [m³]
+            Total volume [m^3]
         """
         if 'h' not in result.data:
             raise ValueError("Water depth 'h' not found")
@@ -405,8 +406,8 @@ class ResultAnalyzer:
 
         if self.mesh is not None:
             lines.append("Mesh information:")
-            lines.append(f"  Grid: {self.mesh.nx} × {self.mesh.ny} = {self.mesh.ncells} cells")
-            lines.append(f"  Domain: [{self.mesh.domain.xmin:.2f}, {self.mesh.domain.xmax:.2f}] × "
+            lines.append(f"  Grid: {self.mesh.nx} x {self.mesh.ny} = {self.mesh.ncells} cells")
+            lines.append(f"  Domain: [{self.mesh.domain.xmin:.2f}, {self.mesh.domain.xmax:.2f}] x "
                        f"[{self.mesh.domain.ymin:.2f}, {self.mesh.domain.ymax:.2f}] m")
             lines.append("")
 

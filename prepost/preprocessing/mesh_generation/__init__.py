@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Mesh generation module for HydroSIS-2D preprocessing
 

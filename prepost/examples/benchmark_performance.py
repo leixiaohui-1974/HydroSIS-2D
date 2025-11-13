@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Performance Benchmark Script
 
@@ -66,7 +67,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
 
     for nx in grid_sizes:
         print(f"\n{'='*80}")
-        print(f"GRID SIZE: {nx}×{nx//2} cells")
+        print(f"GRID SIZE: {nx}x{nx//2} cells")
         print(f"{'='*80}")
 
         ny = nx // 2
@@ -110,7 +111,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
 
         avg_time = np.mean(times)
         std_time = np.std(times)
-        print(f"  Average: {avg_time:.3f} ± {std_time:.3f} s")
+        print(f"  Average: {avg_time:.3f} +/- {std_time:.3f} s")
 
         grid_results[config_name] = {
             'time': avg_time,
@@ -150,7 +151,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
         baseline_time = grid_results["1st-order + NumPy"]['time']
         speedup = baseline_time / avg_time
 
-        print(f"  Average: {avg_time:.3f} ± {std_time:.3f} s (slowdown: {1/speedup:.2f}x)")
+        print(f"  Average: {avg_time:.3f} +/- {std_time:.3f} s (slowdown: {1/speedup:.2f}x)")
 
         grid_results[config_name] = {
             'time': avg_time,
@@ -203,7 +204,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
             std_time = np.std(times)
             speedup = baseline_time / avg_time
 
-            print(f"  Average: {avg_time:.3f} ± {std_time:.3f} s (speedup: {speedup:.2f}x)")
+            print(f"  Average: {avg_time:.3f} +/- {std_time:.3f} s (speedup: {speedup:.2f}x)")
 
             grid_results[config_name] = {
                 'time': avg_time,
@@ -246,7 +247,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
             std_time = np.std(times)
             speedup = baseline_time / avg_time
 
-            print(f"  Average: {avg_time:.3f} ± {std_time:.3f} s")
+            print(f"  Average: {avg_time:.3f} +/- {std_time:.3f} s")
 
             grid_results[config_name] = {
                 'time': avg_time,
@@ -256,7 +257,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
         else:
             print(f"\n[4/4] Skipped: 2nd-order + Numba (Numba not available)")
 
-        results[f"{nx}×{ny}"] = grid_results
+        results[f"{nx}x{ny}"] = grid_results
 
     # ==========================================================================
     # Print comparison table
@@ -276,7 +277,7 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
             elif data['speedup'] < 1.0:
                 speedup_str = f"\033[91m{speedup_str}\033[0m"  # Red for slowdown
 
-            print(f"  {config_name:<20} {data['time']:.3f} ± {data['std']:.3f}  {speedup_str}")
+            print(f"  {config_name:<20} {data['time']:.3f} +/- {data['std']:.3f}  {speedup_str}")
 
     # ==========================================================================
     # Recommendations
@@ -285,35 +286,35 @@ def run_benchmark(grid_sizes=[50, 100, 200], t_end=1.0, num_runs=3):
     print("RECOMMENDATIONS")
     print("="*80)
 
-    print("\nFor SMALL grids (< 100×100):")
-    print("  → Use: spatial_order=1, use_numba=False")
-    print("  → Reason: Simple is fast, Numba overhead not worth it")
+    print("\nFor SMALL grids (< 100x100):")
+    print("  -> Use: spatial_order=1, use_numba=False")
+    print("  -> Reason: Simple is fast, Numba overhead not worth it")
 
-    print("\nFor MEDIUM grids (100×100 to 200×200):")
+    print("\nFor MEDIUM grids (100x100 to 200x200):")
     if NUMBA_AVAILABLE:
-        print("  → Use: spatial_order=1, use_numba=True")
-        print("  → Reason: Numba provides modest speedup")
+        print("  -> Use: spatial_order=1, use_numba=True")
+        print("  -> Reason: Numba provides modest speedup")
     else:
-        print("  → Use: spatial_order=1, use_numba=False")
-        print("  → Reason: NumPy vectorization is efficient")
+        print("  -> Use: spatial_order=1, use_numba=False")
+        print("  -> Reason: NumPy vectorization is efficient")
 
-    print("\nFor LARGE grids (> 200×200):")
+    print("\nFor LARGE grids (> 200x200):")
     if NUMBA_AVAILABLE:
-        print("  → Use: spatial_order=1, use_numba=True")
-        print("  → Reason: Numba speedup increases with grid size")
+        print("  -> Use: spatial_order=1, use_numba=True")
+        print("  -> Reason: Numba speedup increases with grid size")
     else:
-        print("  → Use: spatial_order=1, use_numba=False")
-        print("  → Note: Consider installing Numba for better performance")
+        print("  -> Use: spatial_order=1, use_numba=False")
+        print("  -> Note: Consider installing Numba for better performance")
 
     print("\nFor HIGH ACCURACY requirements:")
-    print("  → Use: spatial_order=2, muscl_limiter='minmod'")
-    print("  → Reason: Reduced numerical diffusion, sharper shocks")
-    print("  → Trade-off: ~80% computational overhead")
+    print("  -> Use: spatial_order=2, muscl_limiter='minmod'")
+    print("  -> Reason: Reduced numerical diffusion, sharper shocks")
+    print("  -> Trade-off: ~80% computational overhead")
 
     print("\nFuture optimizations:")
-    print("  → Numba-optimized MUSCL: Would combine speed + accuracy")
-    print("  → Parallel execution: Would provide multi-core speedup")
-    print("  → GPU acceleration: Would provide 100-1000x speedup")
+    print("  -> Numba-optimized MUSCL: Would combine speed + accuracy")
+    print("  -> Parallel execution: Would provide multi-core speedup")
+    print("  -> GPU acceleration: Would provide 100-1000x speedup")
 
     print("="*80)
 

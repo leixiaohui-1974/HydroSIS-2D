@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example: Initial Conditions Setup for HydroSIS-2D
 
@@ -68,7 +69,7 @@ def example_1_uniform_initial_condition():
 
     plt.tight_layout()
     plt.savefig('ic_uniform.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved visualization to 'ic_uniform.png'")
+    print("\n[OK] Saved visualization to 'ic_uniform.png'")
 
 
 def example_2_dam_break():
@@ -131,7 +132,7 @@ def example_2_dam_break():
     # Statistics
     stats_text = f"""Statistics:
 
-Total Volume: {manager.get_total_volume():.0f} m³
+Total Volume: {manager.get_total_volume():.0f} m^3
 Wet Cells: {np.sum(manager.depth > 0)}
 Max Depth: {np.max(manager.depth):.2f} m
 Mean Depth: {np.mean(manager.depth):.2f} m"""
@@ -142,7 +143,7 @@ Mean Depth: {np.mean(manager.depth):.2f} m"""
 
     plt.tight_layout()
     plt.savefig('ic_dam_break.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved visualization to 'ic_dam_break.png'")
+    print("\n[OK] Saved visualization to 'ic_dam_break.png'")
 
 
 def example_3_gaussian_hump():
@@ -218,7 +219,7 @@ def example_3_gaussian_hump():
 
     plt.tight_layout()
     plt.savefig('ic_gaussian_hump.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved visualization to 'ic_gaussian_hump.png'")
+    print("\n[OK] Saved visualization to 'ic_gaussian_hump.png'")
 
 
 def example_4_parabolic_bowl():
@@ -280,7 +281,7 @@ def example_4_parabolic_bowl():
 
     plt.tight_layout()
     plt.savefig('ic_parabolic_bowl.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved visualization to 'ic_parabolic_bowl.png'")
+    print("\n[OK] Saved visualization to 'ic_parabolic_bowl.png'")
 
 
 def example_5_with_terrain():
@@ -359,7 +360,7 @@ def example_5_with_terrain():
 
     plt.tight_layout()
     plt.savefig('ic_with_terrain.png', dpi=150, bbox_inches='tight')
-    print("\n✓ Saved visualization to 'ic_with_terrain.png'")
+    print("\n[OK] Saved visualization to 'ic_with_terrain.png'")
 
 
 def example_6_export_import():
@@ -381,19 +382,19 @@ def example_6_export_import():
 
     # Export to JSON
     manager.export_to_json('ic_config.json')
-    print("✓ Exported configuration to 'ic_config.json'")
+    print("[OK] Exported configuration to 'ic_config.json'")
 
     # Export to NumPy
     manager.export_arrays_to_numpy('ic_fields')
-    print("✓ Exported arrays to 'ic_fields.npz'")
+    print("[OK] Exported arrays to 'ic_fields.npz'")
 
     # Export to VTK
     manager.export_to_vtk('ic_initial.vtk')
-    print("✓ Exported VTK to 'ic_initial.vtk'")
+    print("[OK] Exported VTK to 'ic_initial.vtk'")
 
     # Import from NumPy
     manager_loaded = InitialConditionManager.import_arrays_from_numpy('ic_fields.npz', mesh)
-    print("✓ Imported arrays from 'ic_fields.npz'")
+    print("[OK] Imported arrays from 'ic_fields.npz'")
 
     # Verify
     print("\nVerification:")

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Quick feasibility test for Numba JIT compilation
 
@@ -109,7 +110,7 @@ if NUMBA_AVAILABLE:
 def benchmark_methods(nx=100, ny=100, iterations=50):
     """Compare NumPy vectorized vs Numba JIT"""
     print(f"\n{'='*70}")
-    print(f"Numba Feasibility Test - Grid {nx}×{ny}")
+    print(f"Numba Feasibility Test - Grid {nx}x{ny}")
     print(f"{'='*70}")
 
     # Create test data
@@ -159,13 +160,13 @@ def benchmark_methods(nx=100, ny=100, iterations=50):
         print(f"  Max diff in flux_hu: {max_diff_hu:.2e}")
 
         if speedup < 1.5:
-            print(f"\n⚠️  Warning: Numba speedup is only {speedup:.2f}x")
+            print(f"\n[WARN]️  Warning: Numba speedup is only {speedup:.2f}x")
             print(f"   Not worth the added complexity over vectorized NumPy.")
             print(f"   Recommendation: Focus on algorithm improvements (MUSCL)")
         else:
             print(f"\n✅ Numba provides {speedup:.2f}x speedup - worth considering!")
     else:
-        print("\n⚠️  Numba not available")
+        print("\n[WARN]️  Numba not available")
 
     print(f"{'='*70}\n")
 

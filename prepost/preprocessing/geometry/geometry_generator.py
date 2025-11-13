@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Synthetic geometry generator for HydroSIS-2D
 

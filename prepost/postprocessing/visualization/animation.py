@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Animation generation for HydroSIS-2D visualizations
 
@@ -53,7 +54,7 @@ class AnimationGenerator:
         self.time_series = []
         self.current_frame = 0
 
-        logger.info(f"Initialized AnimationGenerator for {mesh.nx}×{mesh.ny} mesh")
+        logger.info(f"Initialized AnimationGenerator for {mesh.nx}x{mesh.ny} mesh")
 
     def add_timestep(self, time: float, data: dict) -> None:
         """

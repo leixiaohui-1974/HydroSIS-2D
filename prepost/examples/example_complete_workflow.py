@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example: Complete Simulation Workflow for HydroSIS-2D
 
@@ -42,7 +43,7 @@ def example_1_dam_break_complete():
 
     # Export configuration
     config.export_configuration('output/dam_break')
-    print("\n✓ Configuration exported to 'output/dam_break/'")
+    print("\n[OK] Configuration exported to 'output/dam_break/'")
 
     # Visualize setup
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
@@ -76,17 +77,17 @@ def example_1_dam_break_complete():
     stats = config.get_statistics()
     summary_text = f"""Configuration Summary:
 
-Domain: {stats['domain']['xmin']:.0f}m × {stats['domain']['ymin']:.0f}m
-        to {stats['domain']['xmax']:.0f}m × {stats['domain']['ymax']:.0f}m
+Domain: {stats['domain']['xmin']:.0f}m x {stats['domain']['ymin']:.0f}m
+        to {stats['domain']['xmax']:.0f}m x {stats['domain']['ymax']:.0f}m
 
-Mesh: {stats['mesh']['nx']} × {stats['mesh']['ny']} = {stats['mesh']['ncells']} cells
-Cell size: {stats['mesh']['dx']:.2f}m × {stats['mesh']['dy']:.2f}m
+Mesh: {stats['mesh']['nx']} x {stats['mesh']['ny']} = {stats['mesh']['ncells']} cells
+Cell size: {stats['mesh']['dx']:.2f}m x {stats['mesh']['dy']:.2f}m
 
 Simulation: {stats['simulation']['time']:.1f}s
 Outputs: {stats['simulation']['num_outputs']} files
 CFL: {stats['simulation']['cfl']}
 
-Volume: {stats['initial_conditions']['total_volume']:.0f} m³"""
+Volume: {stats['initial_conditions']['total_volume']:.0f} m^3"""
 
     axes[1, 1].text(0.1, 0.5, summary_text, fontsize=10, verticalalignment='center',
                    family='monospace')
@@ -94,7 +95,7 @@ Volume: {stats['initial_conditions']['total_volume']:.0f} m³"""
 
     plt.tight_layout()
     plt.savefig('workflow_dam_break.png', dpi=150, bbox_inches='tight')
-    print("✓ Saved visualization to 'workflow_dam_break.png'")
+    print("[OK] Saved visualization to 'workflow_dam_break.png'")
 
 
 def example_2_channel_flow_complete():
@@ -120,7 +121,7 @@ def example_2_channel_flow_complete():
 
     # Export configuration
     config.export_configuration('output/channel_flow')
-    print("\n✓ Configuration exported to 'output/channel_flow/'")
+    print("\n[OK] Configuration exported to 'output/channel_flow/'")
 
 
 def example_3_custom_scenario():
@@ -198,13 +199,13 @@ def example_3_custom_scenario():
     # Validate
     is_valid, errors = config.validate()
     if is_valid:
-        print("\n✓ Configuration is valid and ready!")
+        print("\n[OK] Configuration is valid and ready!")
 
         # Export
         config.export_configuration('output/custom_scenario')
-        print("✓ Configuration exported to 'output/custom_scenario/'")
+        print("[OK] Configuration exported to 'output/custom_scenario/'")
     else:
-        print("\n✗ Configuration has errors:")
+        print("\n[ERROR] Configuration has errors:")
         for error in errors:
             print(f"  - {error}")
 
@@ -250,7 +251,7 @@ def example_3_custom_scenario():
 
     plt.tight_layout()
     plt.savefig('workflow_custom_scenario.png', dpi=150, bbox_inches='tight')
-    print("✓ Saved visualization to 'workflow_custom_scenario.png'")
+    print("[OK] Saved visualization to 'workflow_custom_scenario.png'")
 
 
 def example_4_step_by_step():
@@ -273,12 +274,12 @@ def example_4_step_by_step():
         ymin=0.0, ymax=50.0,
         nx=50, ny=25
     )
-    print(f"  ✓ Created {config.mesh.nx}×{config.mesh.ny} mesh")
+    print(f"  [OK] Created {config.mesh.nx}x{config.mesh.ny} mesh")
 
     # Step 3: Setup terrain
     print("Step 3: Setting up terrain...")
     config.set_flat_terrain(elevation=0.0)
-    print(f"  ✓ Set flat terrain at 0.0 m")
+    print(f"  [OK] Set flat terrain at 0.0 m")
 
     # Step 4: Setup boundary conditions
     print("Step 4: Setting up boundary conditions...")
@@ -287,13 +288,13 @@ def example_4_step_by_step():
     bc_manager.set_boundary(OutflowBC(BCLocation.EAST, outflow_type='zero_gradient'))
     bc_manager.set_boundary(WallBC(BCLocation.NORTH))
     bc_manager.set_boundary(WallBC(BCLocation.SOUTH))
-    print("  ✓ Set inflow, outflow, and wall boundaries")
+    print("  [OK] Set inflow, outflow, and wall boundaries")
 
     # Step 5: Setup initial conditions
     print("Step 5: Setting up initial conditions...")
     ic_manager = config.setup_initial_conditions()
     ic_manager.set_initial_condition(UniformIC(depth=2.0, velocity_x=0.5))
-    print("  ✓ Set uniform initial condition")
+    print("  [OK] Set uniform initial condition")
 
     # Step 6: Set simulation parameters
     print("Step 6: Setting simulation parameters...")
@@ -302,22 +303,22 @@ def example_4_step_by_step():
         output_interval=2.0,
         cfl_number=0.5
     )
-    print("  ✓ Set simulation time: 50s, outputs every 2s")
+    print("  [OK] Set simulation time: 50s, outputs every 2s")
 
     # Step 7: Validate
     print("\nStep 7: Validating configuration...")
     is_valid, errors = config.validate()
     if is_valid:
-        print("  ✓ Configuration is valid!")
+        print("  [OK] Configuration is valid!")
     else:
-        print("  ✗ Configuration has errors:")
+        print("  [ERROR] Configuration has errors:")
         for error in errors:
             print(f"    - {error}")
 
     # Step 8: Export
     print("\nStep 8: Exporting configuration...")
     config.export_configuration('output/tutorial')
-    print("  ✓ Exported to 'output/tutorial/'")
+    print("  [OK] Exported to 'output/tutorial/'")
 
     # Step 9: Print summary
     print("\n" + "=" * 70)
@@ -367,13 +368,13 @@ def example_5_compare_scenarios():
     # Compare scenarios
     print("\nScenario Comparison:")
     print("-" * 70)
-    print(f"{'Name':<20} {'Mesh':<15} {'Volume [m³]':<15} {'Time [s]':<10}")
+    print(f"{'Name':<20} {'Mesh':<15} {'Volume [m^3]':<15} {'Time [s]':<10}")
     print("-" * 70)
 
     for config in scenarios:
         stats = config.get_statistics()
         print(f"{config.name:<20} "
-              f"{stats['mesh']['nx']}×{stats['mesh']['ny']:<10} "
+              f"{stats['mesh']['nx']}x{stats['mesh']['ny']:<10} "
               f"{stats['initial_conditions']['total_volume']:<15.0f} "
               f"{stats['simulation']['time']:<10.1f}")
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Initial conditions module for HydroSIS-2D preprocessing
 

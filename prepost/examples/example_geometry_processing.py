@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Example: Geometry Processing for HydroSIS-2D
 
@@ -46,7 +47,7 @@ def example_1_basic_terrain_generation():
     for idx, (name, terrain) in enumerate(terrains.items()):
         ax = axes[idx]
         im = ax.imshow(terrain.data.T, origin='lower', cmap='terrain', aspect='auto')
-        ax.set_title(f'{name}\n({terrain.ncols}×{terrain.nrows} cells)')
+        ax.set_title(f'{name}\n({terrain.ncols}x{terrain.nrows} cells)')
         ax.set_xlabel('X [cells]')
         ax.set_ylabel('Y [cells]')
         plt.colorbar(im, ax=ax, label='Elevation [m]')
@@ -54,13 +55,13 @@ def example_1_basic_terrain_generation():
         # Print statistics
         stats = terrain.get_statistics()
         print(f"\n{name}:")
-        print(f"  Size: {terrain.ncols} × {terrain.nrows}")
+        print(f"  Size: {terrain.ncols} x {terrain.nrows}")
         print(f"  Elevation range: [{stats['min']:.2f}, {stats['max']:.2f}] m")
         print(f"  Mean elevation: {stats['mean']:.2f} m")
 
     plt.tight_layout()
     plt.savefig('terrain_types.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved terrain visualization to 'terrain_types.png'")
+    print(f"\n[OK] Saved terrain visualization to 'terrain_types.png'")
 
 
 def example_2_terrain_processing():
@@ -111,7 +112,7 @@ def example_2_terrain_processing():
     # Aspect
     im2 = axes[0, 2].imshow(aspect.T, origin='lower', cmap='hsv', vmin=0, vmax=360)
     axes[0, 2].set_title('Aspect')
-    plt.colorbar(im2, ax=axes[0, 2], label='Aspect [°]')
+    plt.colorbar(im2, ax=axes[0, 2], label='Aspect [deg]')
 
     # Gaussian smoothed
     im3 = axes[1, 0].imshow(terrain_smooth_gauss.data.T, origin='lower', cmap='terrain')
@@ -134,7 +135,7 @@ def example_2_terrain_processing():
 
     plt.tight_layout()
     plt.savefig('terrain_processing.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved processing visualization to 'terrain_processing.png'")
+    print(f"\n[OK] Saved processing visualization to 'terrain_processing.png'")
 
 
 def example_3_terrain_interpolation():
@@ -144,7 +145,7 @@ def example_3_terrain_interpolation():
     print("=" * 60)
 
     # Create high-resolution terrain
-    print("\nCreating high-resolution terrain (200×200)...")
+    print("\nCreating high-resolution terrain (200x200)...")
     terrain = GeometryGenerator.composite_terrain(
         features=[
             ('inclined_plane', {'slope_x': 0.005, 'base_elevation': 0.0}),
@@ -157,7 +158,7 @@ def example_3_terrain_interpolation():
     )
 
     # Create coarser simulation mesh
-    print("Creating simulation mesh (50×25)...")
+    print("Creating simulation mesh (50x25)...")
     domain = DomainParams(xmin=0.0, xmax=199.0, ymin=0.0, ymax=99.0)
     generator = MeshGenerator(domain)
     mesh = generator.generate_uniform_mesh(nx=50, ny=25)
@@ -173,17 +174,17 @@ def example_3_terrain_interpolation():
 
     # Original terrain
     im0 = axes[0].imshow(terrain.data.T, origin='lower', cmap='terrain', aspect='auto')
-    axes[0].set_title(f'Original Terrain\n({terrain.ncols}×{terrain.nrows} cells)')
+    axes[0].set_title(f'Original Terrain\n({terrain.ncols}x{terrain.nrows} cells)')
     plt.colorbar(im0, ax=axes[0], label='Elevation [m]')
 
     # Linear interpolation
     im1 = axes[1].imshow(elevation_linear.T, origin='lower', cmap='terrain', aspect='auto')
-    axes[1].set_title(f'Linear Interpolation\n({mesh.nx}×{mesh.ny} cells)')
+    axes[1].set_title(f'Linear Interpolation\n({mesh.nx}x{mesh.ny} cells)')
     plt.colorbar(im1, ax=axes[1], label='Elevation [m]')
 
     # Cubic interpolation
     im2 = axes[2].imshow(elevation_cubic.T, origin='lower', cmap='terrain', aspect='auto')
-    axes[2].set_title(f'Cubic Interpolation\n({mesh.nx}×{mesh.ny} cells)')
+    axes[2].set_title(f'Cubic Interpolation\n({mesh.nx}x{mesh.ny} cells)')
     plt.colorbar(im2, ax=axes[2], label='Elevation [m]')
 
     for ax in axes:
@@ -192,7 +193,7 @@ def example_3_terrain_interpolation():
 
     plt.tight_layout()
     plt.savefig('terrain_interpolation.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved interpolation comparison to 'terrain_interpolation.png'")
+    print(f"\n[OK] Saved interpolation comparison to 'terrain_interpolation.png'")
 
     print(f"\nInterpolation statistics:")
     print(f"  Original - min: {np.min(terrain.data):.2f}, max: {np.max(terrain.data):.2f}")
@@ -252,7 +253,7 @@ def example_4_refinement_zones():
 
     plt.tight_layout()
     plt.savefig('refinement_zones.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved refinement zones to 'refinement_zones.png'")
+    print(f"\n[OK] Saved refinement zones to 'refinement_zones.png'")
 
 
 def example_5_save_load_terrain():
@@ -284,8 +285,8 @@ def example_5_save_load_terrain():
 
     # Verify
     print("\nVerifying loaded terrain...")
-    print(f"  Original size: {terrain.ncols} × {terrain.nrows}")
-    print(f"  Loaded size:   {terrain_loaded.ncols} × {terrain_loaded.nrows}")
+    print(f"  Original size: {terrain.ncols} x {terrain.nrows}")
+    print(f"  Loaded size:   {terrain_loaded.ncols} x {terrain_loaded.nrows}")
     print(f"  Cell size match: {terrain.cellsize == terrain_loaded.cellsize}")
     print(f"  Data match: {np.allclose(terrain.data, terrain_loaded.data)}")
 
@@ -306,8 +307,8 @@ def example_5_save_load_terrain():
 
     plt.tight_layout()
     plt.savefig('terrain_save_load.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved comparison to 'terrain_save_load.png'")
-    print(f"✓ Terrain file saved to '{filename}'")
+    print(f"\n[OK] Saved comparison to 'terrain_save_load.png'")
+    print(f"[OK] Terrain file saved to '{filename}'")
 
 
 def example_6_full_workflow():
@@ -384,20 +385,20 @@ def example_6_full_workflow():
     # Mesh visualization
     ax4 = fig.add_subplot(2, 2, 4)
     ax4.plot(mesh.x, mesh.y, 'k.', markersize=0.5, alpha=0.5)
-    ax4.set_title(f'Mesh Layout ({mesh.nx}×{mesh.ny} cells)')
+    ax4.set_title(f'Mesh Layout ({mesh.nx}x{mesh.ny} cells)')
     ax4.set_xlabel('X [m]')
     ax4.set_ylabel('Y [m]')
     ax4.set_aspect('equal')
 
     plt.tight_layout()
     plt.savefig('simulation_setup.png', dpi=150, bbox_inches='tight')
-    print(f"\n✓ Saved simulation setup to 'simulation_setup.png'")
+    print(f"\n[OK] Saved simulation setup to 'simulation_setup.png'")
 
     print("\n" + "=" * 60)
     print("Simulation Ready!")
     print("=" * 60)
-    print(f"  Mesh: {mesh.nx} × {mesh.ny} = {mesh.ncells} cells")
-    print(f"  Domain: [{domain.xmin}, {domain.xmax}] × [{domain.ymin}, {domain.ymax}] m")
+    print(f"  Mesh: {mesh.nx} x {mesh.ny} = {mesh.ncells} cells")
+    print(f"  Domain: [{domain.xmin}, {domain.xmax}] x [{domain.ymin}, {domain.ymax}] m")
     print(f"  Cell size: Δx={mesh.dx:.2f} m, Δy={mesh.dy:.2f} m")
     print(f"  Elevation range: [{np.min(elevation):.2f}, {np.max(elevation):.2f}] m")
     print(f"\n  Files exported:")

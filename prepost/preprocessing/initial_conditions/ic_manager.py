@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Initial condition manager for HydroSIS-2D
 
@@ -53,7 +54,7 @@ class InitialConditionManager:
         self.velocity_x: Optional[np.ndarray] = None
         self.velocity_y: Optional[np.ndarray] = None
 
-        logger.info(f"Initialized InitialConditionManager for {mesh.nx}×{mesh.ny} mesh")
+        logger.info(f"Initialized InitialConditionManager for {mesh.nx}x{mesh.ny} mesh")
 
     def set_initial_condition(self, ic: InitialCondition) -> None:
         """
@@ -171,7 +172,7 @@ class InitialConditionManager:
         Compute total water volume
 
         Returns:
-            Total volume [m³]
+            Total volume [m^3]
         """
         if self.depth is None:
             raise ValueError("Initial fields not generated")
@@ -184,7 +185,7 @@ class InitialConditionManager:
         # Total volume
         volume = np.sum(self.depth) * cell_area
 
-        logger.info(f"Total water volume: {volume:.2f} m³")
+        logger.info(f"Total water volume: {volume:.2f} m^3")
 
         return volume
 
@@ -370,8 +371,8 @@ class InitialConditionManager:
         lines.append("INITIAL CONDITIONS SUMMARY")
         lines.append("=" * 60)
         lines.append("")
-        lines.append(f"Mesh: {self.mesh.nx} × {self.mesh.ny} = {self.mesh.ncells} cells")
-        lines.append(f"Domain: [{self.mesh.domain.xmin}, {self.mesh.domain.xmax}] × [{self.mesh.domain.ymin}, {self.mesh.domain.ymax}]")
+        lines.append(f"Mesh: {self.mesh.nx} x {self.mesh.ny} = {self.mesh.ncells} cells")
+        lines.append(f"Domain: [{self.mesh.domain.xmin}, {self.mesh.domain.xmax}] x [{self.mesh.domain.ymin}, {self.mesh.domain.ymax}]")
         lines.append("")
 
         if self.ic:
@@ -384,7 +385,7 @@ class InitialConditionManager:
 
                 lines.append("Field Statistics:")
                 lines.append(f"  Wet cells: {stats['num_wet_cells']} ({100*stats['wet_fraction']:.1f}%)")
-                lines.append(f"  Total volume: {stats['total_volume']:.2f} m³")
+                lines.append(f"  Total volume: {stats['total_volume']:.2f} m^3")
                 lines.append("")
                 lines.append(f"  Depth: [{stats['depth']['min']:.3f}, {stats['depth']['max']:.3f}] m (mean: {stats['depth']['mean']:.3f})")
                 lines.append(f"  Velocity X: [{stats['velocity_x']['min']:.3f}, {stats['velocity_x']['max']:.3f}] m/s")
@@ -397,7 +398,7 @@ class InitialConditionManager:
 
                 # Validation
                 is_valid, errors = self.validate()
-                lines.append("Validation Status: " + ("✓ VALID" if is_valid else "✗ INVALID"))
+                lines.append("Validation Status: " + ("[OK] VALID" if is_valid else "[ERROR] INVALID"))
                 if errors:
                     lines.append("Errors:")
                     for error in errors:
@@ -412,4 +413,4 @@ class InitialConditionManager:
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        return f"<InitialConditionManager(mesh={self.mesh.nx}×{self.mesh.ny}, ic={self.ic.ic_type.value if self.ic else 'None'})>"
+        return f"<InitialConditionManager(mesh={self.mesh.nx}x{self.mesh.ny}, ic={self.ic.ic_type.value if self.ic else 'None'})>"

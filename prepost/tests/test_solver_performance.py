@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Performance benchmarks for shallow water solver
 
@@ -82,7 +83,7 @@ class TestFluxComputationPerformance:
         print(f"\n{'='*70}")
         print(f"Flux Computation Performance - Small Grid")
         print(f"{'='*70}")
-        print(f"Grid size: {results['grid_size'][0]} × {results['grid_size'][1]} = {results['num_cells']} cells")
+        print(f"Grid size: {results['grid_size'][0]} x {results['grid_size'][1]} = {results['num_cells']} cells")
         print(f"Iterations: {results['num_iterations']}")
         print(f"\nVectorized version:")
         print(f"  Total time: {results['time_vectorized']:.3f} s")
@@ -105,7 +106,7 @@ class TestFluxComputationPerformance:
         print(f"\n{'='*70}")
         print(f"Flux Computation Performance - Medium Grid")
         print(f"{'='*70}")
-        print(f"Grid size: {results['grid_size'][0]} × {results['grid_size'][1]} = {results['num_cells']} cells")
+        print(f"Grid size: {results['grid_size'][0]} x {results['grid_size'][1]} = {results['num_cells']} cells")
         print(f"Iterations: {results['num_iterations']}")
         print(f"\nVectorized version:")
         print(f"  Total time: {results['time_vectorized']:.3f} s")
@@ -126,7 +127,7 @@ class TestFluxComputationPerformance:
         print(f"\n{'='*70}")
         print(f"Flux Computation Performance - Large Grid")
         print(f"{'='*70}")
-        print(f"Grid size: {results['grid_size'][0]} × {results['grid_size'][1]} = {results['num_cells']} cells")
+        print(f"Grid size: {results['grid_size'][0]} x {results['grid_size'][1]} = {results['num_cells']} cells")
         print(f"Iterations: {results['num_iterations']}")
         print(f"\nVectorized version:")
         print(f"  Total time: {results['time_vectorized']:.3f} s")
@@ -213,7 +214,7 @@ class TestSolverEndToEndPerformance:
         for nx, ny, t_end in test_cases:
             results = self.benchmark_solver(nx, ny, t_end)
 
-            print(f"Grid: {results['grid_size'][0]}×{results['grid_size'][1]} = {results['num_cells']:,} cells")
+            print(f"Grid: {results['grid_size'][0]}x{results['grid_size'][1]} = {results['num_cells']:,} cells")
             print(f"  Simulated time: {results['simulated_time']:.2f} s")
             print(f"  Wall time: {results['wall_time']:.2f} s")
             print(f"  Time steps: {results['num_steps']}")

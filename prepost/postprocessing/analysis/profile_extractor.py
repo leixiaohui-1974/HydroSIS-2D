@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Profile extraction tools for HydroSIS-2D results
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Complete simulation configuration for HydroSIS-2D
 
@@ -86,8 +87,8 @@ class SimulationConfig:
         generator = MeshGenerator(self.domain)
         self.mesh = generator.generate_uniform_mesh(nx, ny)
 
-        logger.info(f"Set domain: [{xmin}, {xmax}] × [{ymin}, {ymax}]")
-        logger.info(f"Generated mesh: {nx} × {ny} = {self.mesh.ncells} cells")
+        logger.info(f"Set domain: [{xmin}, {xmax}] x [{ymin}, {ymax}]")
+        logger.info(f"Generated mesh: {nx} x {ny} = {self.mesh.ncells} cells")
 
     def set_mesh(self, mesh: StructuredMesh) -> None:
         """
@@ -99,7 +100,7 @@ class SimulationConfig:
         self.mesh = mesh
         self.domain = mesh.domain
 
-        logger.info(f"Set custom mesh: {mesh.nx} × {mesh.ny} cells")
+        logger.info(f"Set custom mesh: {mesh.nx} x {mesh.ny} cells")
 
     def set_terrain(self, terrain: np.ndarray) -> None:
         """
@@ -205,9 +206,9 @@ class SimulationConfig:
         is_valid = len(errors) == 0
 
         if is_valid:
-            logger.info("✓ Simulation configuration validation passed")
+            logger.info("[OK] Simulation configuration validation passed")
         else:
-            logger.warning(f"✗ Simulation configuration validation failed with {len(errors)} error(s)")
+            logger.warning(f"[ERROR] Simulation configuration validation failed with {len(errors)} error(s)")
 
         return is_valid, errors
 
@@ -295,7 +296,7 @@ class SimulationConfig:
             np.save(os.path.join(output_dir, 'terrain.npy'), self.terrain)
             logger.info(f"Exported terrain to {output_dir}/terrain.npy")
 
-        logger.info(f"✓ Complete configuration exported to {output_dir}/")
+        logger.info(f"[OK] Complete configuration exported to {output_dir}/")
 
     def get_statistics(self) -> Dict:
         """
@@ -355,10 +356,10 @@ class SimulationConfig:
         # Domain and mesh
         if self.domain and self.mesh:
             lines.append("DOMAIN AND MESH:")
-            lines.append(f"  Domain: [{self.domain.xmin}, {self.domain.xmax}] × [{self.domain.ymin}, {self.domain.ymax}]")
-            lines.append(f"  Mesh: {self.mesh.nx} × {self.mesh.ny} = {self.mesh.ncells} cells")
+            lines.append(f"  Domain: [{self.domain.xmin}, {self.domain.xmax}] x [{self.domain.ymin}, {self.domain.ymax}]")
+            lines.append(f"  Mesh: {self.mesh.nx} x {self.mesh.ny} = {self.mesh.ncells} cells")
             lines.append(f"  Cell size: Δx={self.mesh.dx:.3f} m, Δy={self.mesh.dy:.3f} m")
-            lines.append(f"  Domain area: {(self.domain.xmax-self.domain.xmin)*(self.domain.ymax-self.domain.ymin):.1f} m²")
+            lines.append(f"  Domain area: {(self.domain.xmax-self.domain.xmin)*(self.domain.ymax-self.domain.ymin):.1f} m^2")
             lines.append("")
 
         # Terrain
@@ -383,7 +384,7 @@ class SimulationConfig:
             lines.append(f"  Type: {self.ic_manager.ic.ic_type.value}")
             if self.ic_manager.depth is not None:
                 stats = self.ic_manager.get_statistics()
-                lines.append(f"  Total volume: {stats['total_volume']:.1f} m³")
+                lines.append(f"  Total volume: {stats['total_volume']:.1f} m^3")
                 lines.append(f"  Wet cells: {stats['num_wet_cells']} ({100*stats['wet_fraction']:.1f}%)")
                 lines.append(f"  Depth range: [{stats['depth']['min']:.2f}, {stats['depth']['max']:.2f}] m")
             lines.append("")
@@ -398,7 +399,7 @@ class SimulationConfig:
 
         # Validation
         is_valid, errors = self.validate()
-        lines.append("VALIDATION STATUS: " + ("✓ VALID - Ready to run" if is_valid else "✗ INVALID - Issues found"))
+        lines.append("VALIDATION STATUS: " + ("[OK] VALID - Ready to run" if is_valid else "[ERROR] INVALID - Issues found"))
         if errors:
             lines.append("Issues:")
             for error in errors:
@@ -410,7 +411,7 @@ class SimulationConfig:
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        mesh_str = f"{self.mesh.nx}×{self.mesh.ny}" if self.mesh else "None"
+        mesh_str = f"{self.mesh.nx}x{self.mesh.ny}" if self.mesh else "None"
         return f"<SimulationConfig(name='{self.name}', mesh={mesh_str})>"
 
 

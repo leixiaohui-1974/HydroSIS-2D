@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 MUSCL second-order accuracy tests
 
@@ -127,7 +128,7 @@ class TestMUSCLAccuracy:
 
         print(f"\nLimiter Comparison:")
         for limiter in ['minmod', 'superbee', 'vanleer']:
-            print(f"  {limiter:10s}: mass = {results[limiter]['mass']:.2f} m³")
+            print(f"  {limiter:10s}: mass = {results[limiter]['mass']:.2f} m^3")
             print(f"               h range = [{np.min(results[limiter]['h']):.3f}, "
                   f"{np.max(results[limiter]['h']):.3f}] m")
 
@@ -165,7 +166,7 @@ class TestMUSCLAccuracy:
         domain = DomainParams(-50, 50, 0, 20)
 
         # Create reference solution on very fine grid (400x40)
-        print("\nGenerating reference solution (400×40 grid)...")
+        print("\nGenerating reference solution (400x40 grid)...")
         mesh_ref = MeshGenerator(domain).generate_uniform_mesh(nx=400, ny=40)
         terrain_ref = np.zeros((400, 40))
 
@@ -248,7 +249,7 @@ class TestMUSCLAccuracy:
             errors_1st.append(error_1st)
             errors_2nd.append(error_2nd)
 
-            print(f"\nGrid {nx}×{ny}:")
+            print(f"\nGrid {nx}x{ny}:")
             print(f"  1st order L2 error: {error_1st:.6f}")
             print(f"  2nd order L2 error: {error_2nd:.6f}")
             print(f"  Improvement: {error_1st/error_2nd:.2f}x")
@@ -266,7 +267,7 @@ class TestMUSCLAccuracy:
         # Verify second-order is more accurate than first-order on all grids
         for i in range(len(grid_sizes)):
             assert errors_2nd[i] < errors_1st[i], \
-                f"2nd order should be more accurate on {grid_sizes[i]}×{grid_sizes[i]//5} grid"
+                f"2nd order should be more accurate on {grid_sizes[i]}x{grid_sizes[i]//5} grid"
 
         # Verify convergence rates show improvement
         # Note: exact theoretical rates hard to achieve due to limiters and shock
@@ -317,7 +318,7 @@ class TestMUSCLStability:
         print(f"  Completed {solver.step_count} steps to t={solver.t:.2f}s")
         print(f"  Depth range: [{np.min(solver.h):.2f}, {np.max(solver.h):.2f}] m")
         print(f"  Velocity range: [{np.min(solver.u):.2f}, {np.max(solver.u):.2f}] m/s")
-        print(f"  ✓ Stable and physical")
+        print(f"  [OK] Stable and physical")
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Example 1: Basic Mesh Generation
 
@@ -31,8 +32,8 @@ def main():
         ymax=100.0   # 100 m in y-direction
     )
 
-    print(f"Domain: {domain.length_x} m × {domain.length_y} m")
-    print(f"Domain area: {domain.area} m²")
+    print(f"Domain: {domain.length_x} m x {domain.length_y} m")
+    print(f"Domain area: {domain.area} m^2")
     print()
 
     # Create mesh generator
@@ -41,24 +42,24 @@ def main():
     # Method 1: Generate mesh with specified cell count
     print("Method 1: Mesh with specified cell count")
     mesh1 = generator.generate_uniform_mesh(nx=100, ny=50)
-    print(f"  Grid: {mesh1.nx} × {mesh1.ny} = {mesh1.ncells} cells")
+    print(f"  Grid: {mesh1.nx} x {mesh1.ny} = {mesh1.ncells} cells")
     print(f"  Cell size: dx={mesh1.dx:.3f} m, dy={mesh1.dy:.3f} m")
-    print(f"  Cell area: {mesh1.get_cell_area():.3f} m²")
+    print(f"  Cell area: {mesh1.get_cell_area():.3f} m^2")
     print()
 
     # Method 2: Generate mesh with specified cell spacing
     print("Method 2: Mesh with specified cell spacing")
     mesh2 = generator.generate_mesh_with_spacing(dx=1.0, dy=1.0)
-    print(f"  Grid: {mesh2.nx} × {mesh2.ny} = {mesh2.ncells} cells")
+    print(f"  Grid: {mesh2.nx} x {mesh2.ny} = {mesh2.ncells} cells")
     print(f"  Cell size: dx={mesh2.dx:.3f} m, dy={mesh2.dy:.3f} m")
     print()
 
     # Method 3: Generate mesh with target resolution
     print("Method 3: Mesh with target cell area")
     mesh3 = generator.generate_mesh_from_resolution(target_cell_area=4.0)
-    print(f"  Grid: {mesh3.nx} × {mesh3.ny} = {mesh3.ncells} cells")
+    print(f"  Grid: {mesh3.nx} x {mesh3.ny} = {mesh3.ncells} cells")
     print(f"  Cell size: dx={mesh3.dx:.3f} m, dy={mesh3.dy:.3f} m")
-    print(f"  Actual cell area: {mesh3.get_cell_area():.3f} m²")
+    print(f"  Actual cell area: {mesh3.get_cell_area():.3f} m^2")
     print()
 
     # Quality check
@@ -101,21 +102,21 @@ def main():
     # Export to HydroSIS-2D INI format
     ini_file = os.path.join(output_dir, "mesh_basic.ini")
     MeshIO.export_to_ini(mesh1, ini_file, include_physics=True)
-    print(f"✓ Exported INI configuration: {ini_file}")
+    print(f"[OK] Exported INI configuration: {ini_file}")
 
     # Export to VTK format
     vtk_file = os.path.join(output_dir, "mesh_basic.vtk")
     MeshIO.export_to_vtk(mesh1, vtk_file)
-    print(f"✓ Exported VTK mesh: {vtk_file}")
+    print(f"[OK] Exported VTK mesh: {vtk_file}")
 
     # Export to JSON
     json_file = os.path.join(output_dir, "mesh_basic.json")
     MeshIO.export_to_json(mesh1, json_file)
-    print(f"✓ Exported JSON metadata: {json_file}")
+    print(f"[OK] Exported JSON metadata: {json_file}")
 
     # Export batch
     MeshIO.export_batch(mesh1, output_dir, base_name="mesh_complete")
-    print(f"✓ Exported all formats to: {output_dir}/")
+    print(f"[OK] Exported all formats to: {output_dir}/")
 
     # Visualize mesh
     print()
@@ -127,10 +128,10 @@ def main():
         fig, ax = generator.visualize_mesh(show_every=10)
         plot_file = os.path.join(output_dir, "mesh_visualization.png")
         plt.savefig(plot_file, dpi=150, bbox_inches='tight')
-        print(f"✓ Saved mesh visualization: {plot_file}")
+        print(f"[OK] Saved mesh visualization: {plot_file}")
         # plt.show()  # Uncomment to display
     except ImportError:
-        print("⚠ Matplotlib not available, skipping visualization")
+        print("[WARN] Matplotlib not available, skipping visualization")
 
     print()
     print("=" * 60)

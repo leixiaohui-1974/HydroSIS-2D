@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Example 2: Adaptive Mesh Generation
 
@@ -60,9 +61,9 @@ def main():
     print("=" * 60)
     print()
 
-    # Define domain (1000 m × 500 m)
+    # Define domain (1000 m x 500 m)
     domain = DomainParams(xmin=0.0, xmax=1000.0, ymin=0.0, ymax=500.0)
-    print(f"Domain: {domain.length_x} m × {domain.length_y} m")
+    print(f"Domain: {domain.length_x} m x {domain.length_y} m")
     print()
 
     # Create adaptive mesh generator
@@ -85,7 +86,7 @@ def main():
         radius=dam_radius,
         refinement_level=2  # 4x finer
     )
-    print(f"✓ Added refinement zone 1: Dam area (level 2)")
+    print(f"[OK] Added refinement zone 1: Dam area (level 2)")
     print(f"  Center: ({dam_x}, {dam_y}), Radius: {dam_radius} m")
 
     # Add refinement zone 2: Downstream region
@@ -95,7 +96,7 @@ def main():
         refinement_level=1,  # 2x finer
         priority=1
     )
-    print(f"✓ Added refinement zone 2: Downstream region (level 1)")
+    print(f"[OK] Added refinement zone 2: Downstream region (level 1)")
 
     # Add refinement zone 3: Observation point
     obs_x, obs_y = 800.0, 250.0
@@ -105,15 +106,15 @@ def main():
         radius=50.0,
         refinement_level=1
     )
-    print(f"✓ Added refinement zone 3: Observation point (level 1)")
+    print(f"[OK] Added refinement zone 3: Observation point (level 1)")
     print()
 
     # Generate mesh with zones
     base_nx, base_ny = 50, 25
-    print(f"Base mesh resolution: {base_nx} × {base_ny}")
+    print(f"Base mesh resolution: {base_nx} x {base_ny}")
 
     mesh_zones = generator.generate_multiresolution_mesh(base_nx, base_ny)
-    print(f"Final mesh: {mesh_zones.nx} × {mesh_zones.ny} = {mesh_zones.ncells:,} cells")
+    print(f"Final mesh: {mesh_zones.nx} x {mesh_zones.ny} = {mesh_zones.ncells:,} cells")
     print(f"Cell size: dx={mesh_zones.dx:.3f} m, dy={mesh_zones.dy:.3f} m")
     print()
 
@@ -141,7 +142,7 @@ def main():
     # Generate synthetic terrain
     terrain_nx, terrain_ny = 100, 50
     terrain = create_synthetic_terrain(terrain_nx, terrain_ny, domain)
-    print(f"Generated synthetic terrain: {terrain_nx} × {terrain_ny}")
+    print(f"Generated synthetic terrain: {terrain_nx} x {terrain_ny}")
     print(f"Elevation range: [{terrain.min():.2f}, {terrain.max():.2f}] m")
     print()
 
@@ -160,7 +161,7 @@ def main():
         use_terrain=True,
         terrain_data=terrain
     )
-    print(f"Final mesh: {mesh_terrain.nx} × {mesh_terrain.ny} = {mesh_terrain.ncells:,} cells")
+    print(f"Final mesh: {mesh_terrain.nx} x {mesh_terrain.ny} = {mesh_terrain.ncells:,} cells")
     print()
 
     # ==================================================================
@@ -191,7 +192,7 @@ def main():
     generator3.refinement_map = combined_map
 
     mesh_combined = generator3.generate_multiresolution_mesh(50, 25)
-    print(f"Combined mesh: {mesh_combined.nx} × {mesh_combined.ny} = {mesh_combined.ncells:,} cells")
+    print(f"Combined mesh: {mesh_combined.nx} x {mesh_combined.ny} = {mesh_combined.ncells:,} cells")
     print()
 
     # ==================================================================
@@ -215,7 +216,7 @@ def main():
     # Export mesh with zones
     MeshIO.export_to_ini(mesh_zones, os.path.join(output_dir, "mesh_adaptive_zones.ini"))
     MeshIO.export_to_vtk(mesh_zones, os.path.join(output_dir, "mesh_adaptive_zones.vtk"))
-    print("✓ Exported mesh with refinement zones")
+    print("[OK] Exported mesh with refinement zones")
 
     # Export mesh with terrain refinement
     MeshIO.export_to_ini(mesh_terrain, os.path.join(output_dir, "mesh_adaptive_terrain.ini"))
@@ -224,11 +225,11 @@ def main():
         os.path.join(output_dir, "mesh_adaptive_terrain.vtk"),
         data_arrays={'elevation': terrain}
     )
-    print("✓ Exported mesh with terrain-based refinement")
+    print("[OK] Exported mesh with terrain-based refinement")
 
     # Export combined mesh
     MeshIO.export_to_ini(mesh_combined, os.path.join(output_dir, "mesh_adaptive_combined.ini"))
-    print("✓ Exported combined mesh")
+    print("[OK] Exported combined mesh")
 
     # ==================================================================
     # Visualization
@@ -297,12 +298,12 @@ def main():
 
         plot_file = os.path.join(output_dir, "adaptive_mesh_visualization.png")
         plt.savefig(plot_file, dpi=150, bbox_inches='tight')
-        print(f"✓ Saved visualization: {plot_file}")
+        print(f"[OK] Saved visualization: {plot_file}")
 
         # plt.show()  # Uncomment to display
 
     except ImportError:
-        print("⚠ Matplotlib not available, skipping visualization")
+        print("[WARN] Matplotlib not available, skipping visualization")
 
     print()
     print("=" * 60)

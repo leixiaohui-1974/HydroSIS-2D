@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 MUSCL Order Comparison Example
 
@@ -45,7 +46,7 @@ def run_dam_break_comparison(nx=200, t_end=2.0, save_plots=True):
     print("MUSCL Order Comparison Example")
     print("="*70)
     print(f"\nProblem: Dam break")
-    print(f"Grid: {nx}×20 cells")
+    print(f"Grid: {nx}x20 cells")
     print(f"Simulation time: {t_end} seconds")
     print("="*70)
 
@@ -147,7 +148,7 @@ def run_dam_break_comparison(nx=200, t_end=2.0, save_plots=True):
     print(f"  First-order  Total Variation: {tv_1st:.2f}")
     print(f"  Second-order Total Variation: {tv_2nd:.2f}")
     print(f"  Ratio (2nd/1st): {tv_2nd/tv_1st:.3f}")
-    print(f"  → Second-order is {((tv_2nd/tv_1st - 1)*100):+.1f}% less diffusive")
+    print(f"  -> Second-order is {((tv_2nd/tv_1st - 1)*100):+.1f}% less diffusive")
 
     # Shock width (measure of resolution)
     # Find shock position (max gradient)
@@ -159,7 +160,7 @@ def run_dam_break_comparison(nx=200, t_end=2.0, save_plots=True):
     print(f"\nShock resolution analysis:")
     print(f"  First-order  max gradient: {grad_1st[shock_idx_1st]:.3f} m/m")
     print(f"  Second-order max gradient: {grad_2nd[shock_idx_2nd]:.3f} m/m")
-    print(f"  → Second-order shock is {grad_2nd[shock_idx_2nd]/grad_1st[shock_idx_1st]:.2f}x sharper")
+    print(f"  -> Second-order shock is {grad_2nd[shock_idx_2nd]/grad_1st[shock_idx_1st]:.2f}x sharper")
 
     # Performance
     print(f"\nPerformance:")
@@ -224,7 +225,7 @@ def run_dam_break_comparison(nx=200, t_end=2.0, save_plots=True):
     if save_plots:
         filename = f'muscl_comparison_nx{nx}_t{t_end:.1f}.png'
         plt.savefig(filename, dpi=150, bbox_inches='tight')
-        print(f"\n✓ Plot saved: {filename}")
+        print(f"\n[OK] Plot saved: {filename}")
 
     plt.show()
 
@@ -234,9 +235,9 @@ def run_dam_break_comparison(nx=200, t_end=2.0, save_plots=True):
     print("\n" + "="*70)
     print("SUMMARY")
     print("="*70)
-    print(f"\n✓ Second-order MUSCL reduces numerical diffusion")
-    print(f"✓ Second-order produces sharper shock resolution")
-    print(f"✓ Computational overhead: ~{(time_2nd/time_1st - 1)*100:.0f}%")
+    print(f"\n[OK] Second-order MUSCL reduces numerical diffusion")
+    print(f"[OK] Second-order produces sharper shock resolution")
+    print(f"[OK] Computational overhead: ~{(time_2nd/time_1st - 1)*100:.0f}%")
     print(f"\nRecommendation: Use spatial_order=2 for production simulations")
     print("="*70)
 

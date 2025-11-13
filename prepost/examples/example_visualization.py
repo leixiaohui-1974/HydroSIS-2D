@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Example 3: 3D Visualization and Rendering
 
@@ -93,7 +94,7 @@ def example_1_mesh_visualization():
     generator = MeshGenerator(domain)
     mesh = generator.generate_uniform_mesh(50, 25)
 
-    print(f"Created mesh: {mesh.nx} × {mesh.ny} cells")
+    print(f"Created mesh: {mesh.nx} x {mesh.ny} cells")
 
     # Create visualization engine
     engine = VisualizationEngine(offscreen=True)
@@ -105,7 +106,7 @@ def example_1_mesh_visualization():
 
     output_file = os.path.join(output_dir, "mesh_structure.png")
     engine.screenshot(output_file)
-    print(f"✓ Saved: {output_file}")
+    print(f"[OK] Saved: {output_file}")
 
     engine.close()
     print()
@@ -150,7 +151,7 @@ def example_2_terrain_visualization():
     output_dir = "output/visualization"
     output_file = os.path.join(output_dir, "terrain.png")
     engine.screenshot(output_file)
-    print(f"✓ Saved: {output_file}")
+    print(f"[OK] Saved: {output_file}")
 
     engine.close()
     print()
@@ -184,7 +185,7 @@ def example_3_water_surface():
     output_dir = "output/visualization"
     output_file = os.path.join(output_dir, "water_surface.png")
     engine.screenshot(output_file)
-    print(f"✓ Saved: {output_file}")
+    print(f"[OK] Saved: {output_file}")
 
     engine.close()
     print()
@@ -218,7 +219,7 @@ def example_4_velocity_field():
     output_dir = "output/visualization"
     output_file = os.path.join(output_dir, "velocity_field.png")
     engine.screenshot(output_file)
-    print(f"✓ Saved: {output_file}")
+    print(f"[OK] Saved: {output_file}")
 
     engine.close()
     print()
@@ -257,7 +258,7 @@ def example_5_combined_visualization():
     output_dir = "output/visualization"
     output_file = os.path.join(output_dir, "combined_visualization.png")
     engine.screenshot(output_file)
-    print(f"✓ Saved: {output_file}")
+    print(f"[OK] Saved: {output_file}")
 
     engine.close()
     print()
@@ -315,9 +316,9 @@ def example_6_animation():
             terrain, output_file,
             fps=10, field='h', cmap='Blues'
         )
-        print(f"✓ Animation saved: {output_file}")
+        print(f"[OK] Animation saved: {output_file}")
     except Exception as e:
-        print(f"⚠ Animation creation failed: {e}")
+        print(f"[WARN] Animation creation failed: {e}")
         print("  (ffmpeg may not be available)")
 
     print()
@@ -371,7 +372,7 @@ def main():
         try:
             func()
         except Exception as e:
-            print(f"⚠ {name} failed: {e}")
+            print(f"[WARN] {name} failed: {e}")
             import traceback
             traceback.print_exc()
             print()

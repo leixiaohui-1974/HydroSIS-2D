@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 HydroSIS-2D Pre/Post-processing Suite
 

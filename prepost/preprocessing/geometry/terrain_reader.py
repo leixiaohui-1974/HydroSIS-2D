@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Terrain data reader for HydroSIS-2D
 
@@ -141,7 +142,7 @@ class ASCIIGridReader:
         )
 
         logger.info(f"Loaded ASCII Grid: {filepath}")
-        logger.info(f"  Size: {terrain.nrows} × {terrain.ncols}")
+        logger.info(f"  Size: {terrain.nrows} x {terrain.ncols}")
         logger.info(f"  Extent: {terrain.extent}")
         logger.info(f"  Cell size: {terrain.cellsize}")
 

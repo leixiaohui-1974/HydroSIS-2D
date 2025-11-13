@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Boundary condition manager for HydroSIS-2D
 
@@ -211,7 +212,7 @@ class BoundaryConditionManager:
         masks['south'] = south_mask
         masks['north'] = north_mask
 
-        logger.info(f"Applied boundary conditions to mesh ({mesh.nx}×{mesh.ny})")
+        logger.info(f"Applied boundary conditions to mesh ({mesh.nx}x{mesh.ny})")
 
         return masks
 
@@ -307,7 +308,7 @@ class BoundaryConditionManager:
         lines.append("BOUNDARY CONDITIONS SUMMARY")
         lines.append("=" * 60)
         lines.append("")
-        lines.append(f"Domain: [{self.domain.xmin}, {self.domain.xmax}] × [{self.domain.ymin}, {self.domain.ymax}]")
+        lines.append(f"Domain: [{self.domain.xmin}, {self.domain.xmax}] x [{self.domain.ymin}, {self.domain.ymax}]")
         lines.append("")
 
         for location in BCLocation:
@@ -340,7 +341,7 @@ class BoundaryConditionManager:
 
         # Validation status
         is_valid, errors = self.validate()
-        lines.append("Validation Status: " + ("✓ VALID" if is_valid else "✗ INVALID"))
+        lines.append("Validation Status: " + ("[OK] VALID" if is_valid else "[ERROR] INVALID"))
         if errors:
             lines.append("Errors:")
             for error in errors:
