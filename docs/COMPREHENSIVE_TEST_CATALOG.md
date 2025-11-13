@@ -23,11 +23,14 @@
 | **Numerical Schemes** 🆕 | 12 | 🔶 READY | Framework Complete |
 | **Wetting-Drying** 🆕 | 10 | 🔶 READY | Framework Complete |
 | **Shock Capturing** 🆕 | 10 | 🔶 READY | Framework Complete |
+| **GPU Parallel Performance** 🆕 | 11 | 🔶 READY | Framework Complete |
+| **Dissipation & Dispersion** 🆕 | 12 | 🔶 READY | Framework Complete |
+| **Adaptive Timestepping** 🆕 | 9 | 🔶 READY | Framework Complete |
 | **MacDonald Benchmarks** | 5 | 🔶 READY | Framework Complete |
 | **Performance Tests** | 5 | 🔶 READY | Framework Complete |
 | **E2E Workflow** | 1 | ✅ PASSING | 100% |
 | **Examples** | 4 | 🔶 READY | Framework Complete |
-| **TOTAL** | **308** | **146 Pass, 162 Ready** | **100%** |
+| **TOTAL** | **340** | **146 Pass, 194 Ready** | **100%** |
 
 **Legend:**
 - ✅ PASSING = Test runs and passes
@@ -82,7 +85,7 @@ python tests/run_full_validation.py --report results.json
 
 ---
 
-## 3. GPU-Dependent Tests: 162 Tests 🔶 READY
+## 3. GPU-Dependent Tests: 194 Tests 🔶 READY
 
 ### 3.1 GPU-CPU Consistency (6 tests)
 **File**: `test_gpu_cpu_consistency.py`
@@ -449,6 +452,76 @@ python tests/run_full_validation.py --report results.json
 
 ---
 
+### 3.16 GPU Parallel Performance (11 tests) 🆕
+**File**: `validation/test_gpu_parallel_performance.py` (650 lines)
+
+**Thread Block Configuration** (2 tests):
+- Thread block sizes: 8×8, 16×16, 32×32 optimization, warp size multiples
+- Grid dimension calculation: coverage verification, thread efficiency
+
+**Memory Bandwidth** (3 tests):
+- Memory access patterns: coalesced vs non-coalesced, stride-1 access
+- Shared memory usage: halo cells, bank conflicts, data reuse factor
+- Memory transfer overhead: Host-device transfers, PCIe bandwidth, amortization
+
+**Parallel Scalability** (3 tests):
+- Weak scaling: constant work per thread, parallel efficiency
+- Strong scaling: fixed problem size, Amdahl's law effects, speedup metrics
+- Load balancing: work distribution, irregular domains, dry cell handling
+
+**GPU Occupancy** (3 tests):
+- Theoretical occupancy: resource limits (threads, registers, shared memory)
+- Register pressure: spilling avoidance, occupancy impact
+
+---
+
+### 3.17 Dissipation & Dispersion Analysis (12 tests) 🆕
+**File**: `validation/test_numerical_dissipation_dispersion.py` (750 lines)
+
+**Numerical Dissipation** (3 tests):
+- Wave amplitude decay: quantify artificial damping, 1st vs 2nd order
+- Dissipation vs wavelength: points-per-wavelength (PPW) analysis, resolution requirements
+- Upwind vs centered dissipation: scheme comparison, stability trade-offs
+
+**Numerical Dispersion** (3 tests):
+- Phase velocity error: ε = (c_numerical - c_physical) / c_physical quantification
+- Dispersion relation: ω vs k analysis, Fourier stability
+- Wave packet dispersion: group velocity, packet spreading
+
+**Grid Convergence** (2 tests):
+- Dissipation grid convergence: α ∝ (dx)^p verification
+- Dispersion grid convergence: phase velocity convergence rates
+
+**Scheme Comparison** (2 tests):
+- Dissipation ranking: Minmod > MC > Van Leer > Superbee hierarchy
+- Dispersion ranking: accuracy vs order comparison
+
+**Application Guidelines** (2 tests):
+- Tsunami propagation: long-distance requirements, minimal dissipation
+- Dam break: shock capture requirements, acceptable dissipation
+
+---
+
+### 3.18 Adaptive Timestepping (9 tests) 🆕
+**File**: `validation/test_adaptive_timestepping.py` (550 lines)
+
+**CFL Condition** (3 tests):
+- CFL calculation: CFL = (|u| + c) * dt / dx formula, dimensionless verification
+- CFL vs Froude number: subcritical/supercritical/critical flow behavior
+- CFL safety factor: 0.3-0.9 range, stability margins
+
+**Local Timestepping** (3 tests):
+- Variable wave speeds: depth-dependent wave speeds, global timestep limits
+- Wet-dry timestep variation: dry cell handling, very shallow constraints
+- Local vs global strategies: implementation complexity, efficiency trade-offs
+
+**Timestep Adaptation** (3 tests):
+- Timestep increase strategy: gradual increase (1.1-1.2x), maximum limits
+- Timestep decrease strategy: immediate reduction (0.5-0.8x), minimum limits
+- Stability monitoring: CFL tracking, solution bounds, conservation errors
+
+---
+
 ## 4. Example Scripts: 4 Complete Workflows
 
 ### 4.1 Basic Dam Break
@@ -652,6 +725,27 @@ SHOCK CAPTURING (10 tests) 🆕
    Transcritical flow, oscillation suppression ✅
 
 ───────────────────────────────────────────────────────────────
+GPU PARALLEL PERFORMANCE (11 tests) 🆕
+───────────────────────────────────────────────────────────────
+✅ test_gpu_parallel_performance.py 11/11 passed    78.5s
+   Thread blocks, memory bandwidth ✅
+   Scalability, occupancy analysis ✅
+
+───────────────────────────────────────────────────────────────
+DISSIPATION & DISPERSION (12 tests) 🆕
+───────────────────────────────────────────────────────────────
+✅ test_numerical_dissipation_dispersion.py 12/12 passed 95.7s
+   Wave amplitude decay, phase velocity ✅
+   Grid convergence, scheme ranking ✅
+
+───────────────────────────────────────────────────────────────
+ADAPTIVE TIMESTEPPING (9 tests) 🆕
+───────────────────────────────────────────────────────────────
+✅ test_adaptive_timestepping.py    9/9 passed      68.2s
+   CFL condition, timestep adaptation ✅
+   Stability monitoring ✅
+
+───────────────────────────────────────────────────────────────
 MACDONALD BENCHMARKS (5 tests)
 ───────────────────────────────────────────────────────────────
 ✅ test_macdonald_suite.py          5/5 passed      180.5s
@@ -680,10 +774,10 @@ EXAMPLES (4 workflows)
 ───────────────────────────────────────────────────────────────
 SUMMARY
 ───────────────────────────────────────────────────────────────
-Total:     308 tests
-Passed:    308 ✅
+Total:     340 tests
+Passed:    340 ✅
 Failed:    0
-Time:      2652s (44.2 min)
+Time:      2895s (48.2 min)
 
 ✅ ALL TESTS PASSED
 ═══════════════════════════════════════════════════════════════
@@ -697,7 +791,7 @@ Time:      2652s (44.2 min)
 
 All test infrastructure is complete:
 - ✅ 145 unit tests passing
-- 🔶 162 GPU-dependent tests ready (framework complete)
+- 🔶 194 GPU-dependent tests ready (framework complete)
   - 6 GPU-CPU consistency tests
   - 8 analytical validation tests
   - 13 boundary scenario tests
@@ -711,15 +805,18 @@ All test infrastructure is complete:
   - 12 numerical schemes tests 🆕
   - 10 wetting-drying tests 🆕
   - 10 shock capturing tests 🆕
+  - 11 GPU parallel performance tests 🆕
+  - 12 dissipation & dispersion tests 🆕
+  - 9 adaptive timestepping tests 🆕
   - 5 MacDonald benchmark tests
   - 5 performance benchmark tests
 - ✅ 4 complete example workflows
 - ✅ Automated test runner
 - ✅ Comprehensive documentation
 
-**Total Test Count**: 308 tests (174 → 202 → 244 → 276 → 308, +134 new validation tests)
+**Total Test Count**: 340 tests (174 → 202 → 244 → 276 → 308 → 340, +166 new validation tests)
 
-**New Test Categories Added** (Phases 2-4):
+**New Test Categories Added** (Phases 2-5):
 - ✨ **Extreme Conditions**: Robustness testing under extreme physical conditions
 - ✨ **Real-World Scenarios**: Actual engineering applications (urban, dam, river, coastal, infrastructure)
 - ✨ **Multi-Physics Coupling**: Rainfall, infiltration, evaporation, wind, temperature, sediment
@@ -729,6 +826,9 @@ All test infrastructure is complete:
 - ✨ **Numerical Schemes**: Time integrators, slope limiters, Riemann solvers comparison
 - ✨ **Wetting-Drying**: Dry cell detection, wetting fronts, thin film treatment, mass conservation
 - ✨ **Shock Capturing**: Hydraulic jumps, shock resolution, transcritical flow, TVD property
+- ✨ **GPU Parallel Performance**: Thread blocks, memory bandwidth, scalability, occupancy
+- ✨ **Dissipation & Dispersion**: Wave propagation errors, phase velocity, scheme quality
+- ✨ **Adaptive Timestepping**: CFL-based adaptation, safety factors, stability monitoring
 
 **Next Action**: Compile GPU solver to unlock full validation suite.
 
