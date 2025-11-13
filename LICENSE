@@ -1,0 +1,78 @@
+# License
+
+**Status**: To Be Determined
+
+The license for HydroSIS-2D is currently being decided.
+
+## Potential License Options
+
+The project maintainers are considering the following open-source licenses:
+
+### Option 1: MIT License
+- **Pros**: Very permissive, widely used, simple
+- **Cons**: No patent protection, no copyleft
+- **Good for**: Maximum adoption, commercial use allowed
+
+### Option 2: Apache 2.0
+- **Pros**: Permissive + patent protection, widely used
+- **Cons**: More complex than MIT
+- **Good for**: Projects with patent concerns, corporate adoption
+
+### Option 3: GPL v3
+- **Pros**: Strong copyleft, ensures derivatives remain open
+- **Cons**: Less permissive, may limit commercial adoption
+- **Good for**: Ensuring all derivatives are open-source
+
+### Option 4: LGPL v3
+- **Pros**: Copyleft for library, allows proprietary linking
+- **Cons**: More complex licensing
+- **Good for**: Library that can be used in proprietary software
+
+### Option 5: BSD 3-Clause
+- **Pros**: Permissive, patent protection, simple
+- **Cons**: Slightly more restrictive than MIT
+- **Good for**: Academic and research use
+
+## Recommendation
+
+For a scientific/engineering software project like HydroSIS-2D, we recommend either:
+
+1. **MIT License**: For maximum adoption and simplicity
+2. **Apache 2.0**: For better patent protection while remaining permissive
+
+## Interim Usage
+
+Until a license is officially chosen and applied:
+
+- The code is **copyright** © 2025 HydroSIS-2D Contributors
+- **No explicit permissions** are granted for use, modification, or distribution
+- Please contact project maintainers for permission to use the code
+
+## Timeline
+
+A license will be selected and applied by **Version 0.2.0 release** (Q1 2026).
+
+---
+
+## For Contributors
+
+By contributing to HydroSIS-2D, you agree that:
+
+1. Your contributions will be licensed under the same license as the project (once determined)
+2. You have the legal right to make your contributions
+3. Your contributions are your original work or properly attributed
+
+---
+
+## Contact
+
+For licensing questions, please contact:
+
+- GitHub Issues: https://github.com/leixiaohui-1974/HydroSIS-2D/issues
+- GitHub Discussions: https://github.com/leixiaohui-1974/HydroSIS-2D/discussions
+
+---
+
+*This placeholder will be replaced with an actual license file once a decision is made.*
+
+*Last updated: 2025-11-13*

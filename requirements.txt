@@ -1,0 +1,20 @@
+# HydroSIS-2D Core Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core numerical computing
+numpy>=1.24.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Testing (minimal for users)
+pytest>=7.4.0
+
+# Optional but recommended
+pyvista>=0.42.0  # 3D visualization
+h5py>=3.9.0  # HDF5 I/O
+netCDF4>=1.6.4  # NetCDF I/O
+tqdm>=4.66.0  # Progress bars
+
+# For GPU solver Python bindings
+# pybind11>=2.11.0  # (required for building, not runtime)
