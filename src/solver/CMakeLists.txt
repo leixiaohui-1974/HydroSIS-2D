@@ -33,11 +33,12 @@ endif()
 
 # CUDA source files
 set(CUDA_SOURCES
+    cuda/ShallowWaterSolver.cu
     cuda/kernels/flux_kernels.cu
-    # cuda/kernels/update_kernels.cu
-    # cuda/kernels/source_kernels.cu
-    # cuda/kernels/bc_kernels.cu
-    # cuda/ShallowWaterSolver.cu
+    cuda/kernels/update_kernels.cu
+    cuda/kernels/source_kernels.cu
+    cuda/kernels/bc_kernels.cu
+    cuda/kernels/muscl_kernels.cu
 )
 
 # C++ source files
