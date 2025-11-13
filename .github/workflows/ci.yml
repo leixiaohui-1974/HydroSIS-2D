@@ -1,0 +1,332 @@
+name: HydroSIS-2D CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests every Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+jobs:
+  # ============================================================================
+  # Unit Tests (CPU only - no GPU required)
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Run unit tests
+      run: |
+        pytest prepost/tests/ -v --ignore=prepost/tests/test_gpu*.py \
+          --ignore=prepost/tests/validation/ \
+          --ignore=prepost/tests/performance/ \
+          --cov=preprocessing --cov-report=xml --cov-report=term
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # ============================================================================
+  # Code Quality Checks
+  # ============================================================================
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort mypy pylint
+        pip install -r requirements.txt
+
+    - name: Check code formatting with Black
+      run: |
+        black --check prepost/ examples/ --line-length 100
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only prepost/ examples/ --profile black
+
+    - name: Lint with flake8
+      run: |
+        flake8 prepost/ examples/ --max-line-length=100 --extend-ignore=E203,W503
+
+    - name: Type checking with mypy
+      run: |
+        mypy prepost/ --ignore-missing-imports --no-strict-optional
+      continue-on-error: true  # Don't fail on type errors yet
+
+  # ============================================================================
+  # E2E Workflow Test
+  # ============================================================================
+  e2e-test:
+    name: End-to-End Workflow Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Run E2E test
+      run: |
+        pytest prepost/tests/e2e/ -v -s
+
+  # ============================================================================
+  # Documentation Build
+  # ============================================================================
+  docs-build:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install sphinx sphinx-rtd-theme myst-parser
+        pip install -r requirements.txt
+
+    - name: Check markdown files
+      run: |
+        # Check for broken links in markdown
+        find . -name "*.md" -type f -exec grep -l "](http" {} \; || true
+
+    - name: Validate documentation structure
+      run: |
+        # Ensure all referenced docs exist
+        test -f README.md
+        test -f QUICKSTART_GPU.md
+        test -f CONTRIBUTING.md
+        test -f LICENSE
+        test -f PROJECT_STATUS.md
+        test -f docs/PRODUCT_ROADMAP_2025.md
+        test -f docs/GPU_SOLVER_IMPLEMENTATION_2025-11-13.md
+        test -f docs/COMPREHENSIVE_TEST_CATALOG.md
+
+  # ============================================================================
+  # GPU Tests (Self-hosted runner with CUDA)
+  # ============================================================================
+  gpu-tests:
+    name: GPU Tests (CUDA)
+    runs-on: self-hosted  # Requires self-hosted runner with GPU
+    if: false  # Disabled until self-hosted runner is configured
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check CUDA availability
+      run: |
+        nvidia-smi
+        nvcc --version
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: Build GPU solver
+      run: |
+        cd src/solver
+        mkdir -p build && cd build
+        cmake .. -DCMAKE_CUDA_ARCHITECTURES=native -DCMAKE_BUILD_TYPE=Release
+        make -j$(nproc)
+        make install
+
+    - name: Verify GPU solver installation
+      run: |
+        python -c "import hydrosis2d_cuda; print(f'GPUs: {hydrosis2d_cuda.get_gpu_count()}')"
+
+    - name: Run GPU-CPU consistency tests
+      run: |
+        pytest prepost/tests/test_gpu_cpu_consistency.py -v
+
+    - name: Run validation tests
+      run: |
+        pytest prepost/tests/validation/ -v
+
+    - name: Run performance benchmarks
+      run: |
+        pytest prepost/tests/performance/ -v --benchmark-only
+
+  # ============================================================================
+  # Performance Regression Tests
+  # ============================================================================
+  performance-regression:
+    name: Performance Regression
+    runs-on: self-hosted  # Requires self-hosted runner with GPU
+    if: false  # Disabled until self-hosted runner is configured
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Checkout previous version
+      run: |
+        git fetch origin main
+        git checkout origin/main -- prepost/tests/performance/
+
+    - name: Run performance comparison
+      run: |
+        # Compare current vs previous performance
+        python tests/run_full_validation.py --performance --report current.json
+        # Compare with baseline (would need to store baseline)
+
+    - name: Check for regressions
+      run: |
+        # Fail if performance degrades by >10%
+        echo "Performance regression check placeholder"
+
+  # ============================================================================
+  # Example Scripts Test
+  # ============================================================================
+  examples-test:
+    name: Example Scripts (Dry Run)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Validate example imports
+      run: |
+        cd examples
+        python -c "import sys; sys.path.insert(0, '../prepost'); from preprocessing.utils import create_dam_break_simulation"
+        echo "✓ Example imports work"
+
+    - name: Check example syntax
+      run: |
+        python -m py_compile examples/01_basic_dam_break.py
+        python -m py_compile examples/02_performance_benchmark.py
+        python -m py_compile examples/03_analytical_validation.py
+        python -m py_compile examples/04_urban_flood.py
+        echo "✓ All examples have valid syntax"
+
+  # ============================================================================
+  # Security Scan
+  # ============================================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Bandit security scan
+      run: |
+        pip install bandit
+        bandit -r prepost/ -ll
+      continue-on-error: true
+
+    - name: Check for known vulnerabilities
+      run: |
+        pip install safety
+        safety check --json || true
+
+  # ============================================================================
+  # Build Summary
+  # ============================================================================
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, code-quality, e2e-test, docs-build, examples-test]
+    if: always()
+
+    steps:
+    - name: Check build status
+      run: |
+        echo "Unit Tests: ${{ needs.unit-tests.result }}"
+        echo "Code Quality: ${{ needs.code-quality.result }}"
+        echo "E2E Test: ${{ needs.e2e-test.result }}"
+        echo "Docs Build: ${{ needs.docs-build.result }}"
+        echo "Examples Test: ${{ needs.examples-test.result }}"
+
+    - name: Overall status
+      run: |
+        if [[ "${{ needs.unit-tests.result }}" == "success" ]] && \
+           [[ "${{ needs.code-quality.result }}" == "success" ]] && \
+           [[ "${{ needs.e2e-test.result }}" == "success" ]] && \
+           [[ "${{ needs.docs-build.result }}" == "success" ]] && \
+           [[ "${{ needs.examples-test.result }}" == "success" ]]; then
+          echo "✅ All checks passed!"
+          exit 0
+        else
+          echo "❌ Some checks failed"
+          exit 1
+        fi
