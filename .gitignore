@@ -1,8 +1,17 @@
+# HydroSIS-2D .gitignore
+
+# ============================================================================
 # Python
+# ============================================================================
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -16,55 +25,291 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Testing
-.pytest_cache/
-.coverage
-.coverage.*
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
 htmlcov/
 .tox/
 .nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
 
 # Virtual environments
 venv/
-ENV/
 env/
-.venv
+ENV/
+env.bak/
+venv.bak/
 
-# IDEs
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# ============================================================================
+# C++ / CUDA
+# ============================================================================
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CUDA
+*.cubin
+*.fatbin
+*.ptx
+
+# ============================================================================
+# CMake
+# ============================================================================
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+*.cmake
+!CMakeLists.txt
+
+# Build directories
+build/
+Build/
+BUILD/
+out/
+debug/
+release/
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+# Visual Studio Code
 .vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# JetBrains IDEs (PyCharm, CLion, etc.)
 .idea/
-*.swp
-*.swo
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
 *~
 
-# Generated output files from examples
-prepost/examples/*.png
-prepost/examples/*.jpg
-prepost/examples/*.gif
-prepost/examples/*.mp4
-prepost/examples/*.vtk
-prepost/examples/*.asc
-prepost/examples/*.txt
-prepost/examples/*.json
-prepost/examples/*.ini
-prepost/examples/*.npz
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
 
-# Solver output directories
-prepost/output/
-output/
+# ============================================================================
+# Operating System
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# Project-Specific
+# ============================================================================
+# Output files
+examples/output/
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.gif
+*.vtk
+*.vtu
+*.hdf5
+*.h5
+*.nc
+*.json
+!**/test_data/*.json  # Keep test data
+
+# Large data files
+data/large/
+*.asc
+*.tif
+*.tiff
+
+# Profiling output
+*.prof
+*.lprof
+*.pstat
+*.nvprof
+*.nvvp
+*.qdrep
+*.qdstrm
+nsys-rep-*.sqlite
+*.nsys-rep
+*.ncu-rep
 
 # Temporary files
 *.tmp
+*.temp
+*.swp
+*.swo
 *.bak
-*.log
+*.orig
 
-# OS files
-.DS_Store
-Thumbs.db
+# Logs
+*.log
+logs/
+
+# Documentation builds
+docs/_build/
+docs/_static/
+docs/_templates/
+docs/api/
+
+# ============================================================================
+# CUDA / GPU Specific
+# ============================================================================
+# NVIDIA Nsight
+*.nsight-cuprof-report
+.nsight-reports/
+
+# GPU cache
+.nv/
+
+# ============================================================================
+# Miscellaneous
+# ============================================================================
+# Compressed files (unless specifically needed)
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# ============================================================================
+# Keep These Files
+# ============================================================================
+# Explicitly keep certain directories
+!examples/.gitkeep
+!data/test/.gitkeep
